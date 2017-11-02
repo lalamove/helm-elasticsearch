@@ -81,7 +81,7 @@ service:
   transportPort: 9300
 
 kibana:
-  enabled: true
+  enabled: false
   replicas: 1
   image:
     repository: blacktop/kibana
