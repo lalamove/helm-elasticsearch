@@ -22,10 +22,6 @@ client:
   replicas: 2
   antiAffinity: "soft"
   env:
-    NODE_DATA: "false"
-    NODE_MASTER: "false"
-    NODE_INGEST: "true"
-    HTTP_ENABLE: "true"
     ES_JAVA_OPTS: "-Xms256m -Xmx256m"
 
 # Data nodes hold the shards that contain the documents you have indexed. Data
@@ -40,10 +36,6 @@ data:
   replicas: 2
   antiAffinity: "soft"
   env:
-    NODE_DATA: "true"
-    NODE_MASTER: "false"
-    NODE_INGEST: "false"
-    HTTP_ENABLE: "false"
     ES_JAVA_OPTS: "-Xms256m -Xmx256m"
 
   # If enabled, then the data nodes will be StatefulSets with associated
@@ -66,10 +58,6 @@ master:
   replicas: 3
   antiAffinity: "soft"
   env:
-    NODE_DATA: "false"
-    NODE_MASTER: "true"
-    NODE_INGEST: "false"
-    HTTP_ENABLE: "false"
     ES_JAVA_OPTS: "-Xms256m -Xmx256m"
 
     # The default value for this environment variable is 2, meaning a cluster
@@ -80,7 +68,6 @@ master:
 curator:
   enabled: true
   schedule: "0 1 * * *"
-
   # Allows modification of the default age-based filter. If you require more
   # sophisticated filtering, modify the action file specified in
   # templates/es-curator-config.yaml.
