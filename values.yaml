@@ -1,7 +1,7 @@
 common:
   image:
     repository: quay.io/pires/docker-elasticsearch-kubernetes
-    tag: 5.6.1
+    tag: 5.6.3
     pullPolicy: Always
 
   # Defines the service type for all outward-facing (non-discovery) services.
@@ -97,8 +97,8 @@ kibana:
   enabled: true
   replicas: 1
   image:
-    repository: cfontes/kibana-xpack-less
-    tag: 5.5.0
+    repository: blacktop/kibana
+    tag: 5.6.3
     pullPolicy: Always
   httpPort: 80
   resources:
