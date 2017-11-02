@@ -48,6 +48,8 @@ master:
   # Master replica count should be (#clients / 2) + 1, and generally at least 3.
   replicas: 3
   antiAffinity: "soft"
+  storage: 2Gi
+  storageClass: "default"
   env:
     ES_JAVA_OPTS: "-Xms256m -Xmx256m"
     # The default value for this environment variable is 2, meaning a cluster
