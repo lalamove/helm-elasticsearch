@@ -35,19 +35,10 @@ data:
   # This count will depend on your data and computation needs.
   replicas: 2
   antiAffinity: "soft"
+  storage: 12Gi
+  storageClass: "default"
   env:
     ES_JAVA_OPTS: "-Xms256m -Xmx256m"
-
-  # If enabled, then the data nodes will be StatefulSets with associated
-  # persistent volume claims.
-  stateful:
-    enabled: false
-
-    # This will fill quickly in production. You will want to increase it.
-    size: 12Gi
-
-    # The PVC storage class. On AWS "gp2" would be appropriate.
-    class: "standard"
 
 # The master node is responsible for lightweight cluster-wide actions such as
 # creating or deleting an index, tracking which nodes are part of the 
@@ -59,7 +50,6 @@ master:
   antiAffinity: "soft"
   env:
     ES_JAVA_OPTS: "-Xms256m -Xmx256m"
-
     # The default value for this environment variable is 2, meaning a cluster
     # will need a minimum of 2 master nodes to operate. If you have 3 masters
     # and one dies, the cluster still works.
