@@ -17,6 +17,7 @@ spec:
         component: {{ template "fullname" . }}
         role: client
     spec:
+      serviceAccountName: {{ template "fullname" . }}
       {{- if eq .Values.client.antiAffinity "hard" }}
       affinity:
         podAntiAffinity:
