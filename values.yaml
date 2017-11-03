@@ -21,8 +21,7 @@ client:
   # It isn't common to need more than 2 client nodes.
   replicas: 2
   antiAffinity: "soft"
-  env:
-    ES_JAVA_OPTS: "-Xms256m -Xmx256m"
+  heapSize: 256m
   resources:
     limits:
       cpu: 200m
@@ -44,8 +43,7 @@ data:
   antiAffinity: "soft"
   storage: 12Gi
   storageClass: "default"
-  env:
-    ES_JAVA_OPTS: "-Xms256m -Xmx256m"
+  heapSize: 256m
   resources:
     limits:
       cpu: 200m
@@ -63,9 +61,9 @@ master:
   replicas: 3
   antiAffinity: "soft"
   storage: 2Gi
+  heapSize: 256m
   storageClass: "default"
   env:
-    ES_JAVA_OPTS: "-Xms256m -Xmx256m"
     # The minimum number of masters that will be able to form a quorum. This
     # should be (#masters / 2) + 1. Default is 2.
     NUMBER_OF_MASTERS: "2"
