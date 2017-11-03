@@ -5,7 +5,7 @@ common:
     pullPolicy: Always
 
   # Defines the service type for all outward-facing (non-discovery) services.
-  serviceType: LoadBalancer
+  serviceType: ClusterIP
 
   env:
     CLUSTER_NAME: "myesdb"
