@@ -39,3 +39,6 @@ data:
       zen:
         ping.unicast.hosts: ${DISCOVERY_SERVICE}
         minimum_master_nodes: ${NUMBER_OF_MASTERS}
+
+    # see https://github.com/elastic/elasticsearch-definitive-guide/pull/679
+    processors: ${PROCESSORS:}

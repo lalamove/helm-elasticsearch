@@ -76,6 +76,8 @@ spec:
           value: "true"
         - name: HTTP_ENABLE
           value: "true"
+        - name: PROCESSORS
+          value: "{{ .Values.client.processors }}"
         {{- range $key, $value :=  .Values.common.env }}
         - name: {{ $key | upper | replace "-" "_" }}
           value: {{ $value | quote }}

@@ -77,6 +77,8 @@ spec:
           value: "false"
         - name: HTTP_ENABLE
           value: "false"
+        - name: PROCESSORS
+          value: "{{ .Values.data.processors }}"
         {{- range $key, $value :=  .Values.common.env }}
         - name: {{ $key | upper | replace "-" "_" }}
           value: {{ $value | quote }}

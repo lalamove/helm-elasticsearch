@@ -22,6 +22,9 @@ client:
   replicas: 2
   antiAffinity: "soft"
   heapSize: 256m
+  # More info on what this setting does is in the config map. Only change this
+  # if you set the cpu limit to over 1 full cpu.
+  processors: 1
   resources:
     limits:
       cpu: 200m
@@ -44,6 +47,9 @@ data:
   storage: 12Gi
   storageClass: "default"
   heapSize: 256m
+  # More info on what this setting does is in the config map. Only change this
+  # if you set the cpu limit to over 1 full cpu.
+  processors: 1
   resources:
     limits:
       cpu: 200m
@@ -61,8 +67,11 @@ master:
   replicas: 3
   antiAffinity: "soft"
   storage: 2Gi
-  heapSize: 256m
   storageClass: "default"
+  heapSize: 256m
+  # More info on what this setting does is in the config map. Only change this
+  # if you set the cpu limit to over 1 full cpu.
+  processors: 1
   env:
     # The minimum number of masters that will be able to form a quorum. This
     # should be (#masters / 2) + 1. Default is 2.
