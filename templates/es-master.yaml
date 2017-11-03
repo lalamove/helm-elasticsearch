@@ -93,8 +93,15 @@ spec:
           tcpSocket:
             port: 9300
         volumeMounts:
-        - name: storage
-          mountPath: /data
+        - mountPath: /data
+          name: storage
+        - mountPath: /elasticsearch/config/elasticsearch.yml
+          name: config
+          subPath: elasticsearch.yml
+      volumes:
+        - configMap:
+            name: {{ template "fullname" . }}-config
+          name: config
   volumeClaimTemplates:
   - metadata:
       name: storage
