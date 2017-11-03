@@ -52,10 +52,10 @@ spec:
         image: "{{ .Values.common.image.repository }}:{{ .Values.common.image.tag }}"
         imagePullPolicy: {{ .Values.common.image.pullPolicy }}
         securityContext:
-          privileged: true
           capabilities:
             add:
               - IPC_LOCK
+              - SYS_RESOURCE
         env:
         - name: NAMESPACE
           valueFrom:

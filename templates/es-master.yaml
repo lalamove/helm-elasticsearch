@@ -50,7 +50,6 @@ spec:
       containers:
       - name: es-master
         securityContext:
-          privileged: false
           capabilities:
             add:
               - IPC_LOCK
