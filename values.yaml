@@ -23,6 +23,13 @@ client:
   antiAffinity: "soft"
   env:
     ES_JAVA_OPTS: "-Xms256m -Xmx256m"
+  resources:
+    limits:
+      cpu: 200m
+      memory: 384Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
 
 # Data nodes hold the shards that contain the documents you have indexed. Data
 # nodes handle data related operations like CRUD, search, and aggregations.
@@ -39,6 +46,13 @@ data:
   storageClass: "default"
   env:
     ES_JAVA_OPTS: "-Xms256m -Xmx256m"
+  resources:
+    limits:
+      cpu: 200m
+      memory: 384Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
 
 # The master node is responsible for lightweight cluster-wide actions such as
 # creating or deleting an index, tracking which nodes are part of the
@@ -52,10 +66,16 @@ master:
   storageClass: "default"
   env:
     ES_JAVA_OPTS: "-Xms256m -Xmx256m"
-    # The default value for this environment variable is 2, meaning a cluster
-    # will need a minimum of 2 master nodes to operate. If you have 3 masters
-    # and one dies, the cluster still works.
+    # The minimum number of masters that will be able to form a quorum. This
+    # should be (#masters / 2) + 1. Default is 2.
     NUMBER_OF_MASTERS: "2"
+  resources:
+    limits:
+      cpu: 200m
+      memory: 384Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
 
 curator:
   enabled: true
@@ -82,17 +102,19 @@ kibana:
   httpPort: 80
   resources:
     limits:
-      cpu: 1000m
+      cpu: 200m
+      memory: 384Mi
     requests:
       cpu: 100m
+      memory: 256Mi
   env:
     XPACK_GRAPH_ENABLED: "false"
     XPACK_ML_ENABLED: "false"
     XPACK_REPORTING_ENABLED: "false"
     XPACK_SECURITY_ENABLED: "false"
   ingress:
-    enabled: false
     # Used to create an Ingress record.
+    enabled: false
     hosts:
       # - kibana.local
     annotations:
