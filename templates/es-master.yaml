@@ -107,10 +107,9 @@ spec:
   volumeClaimTemplates:
   - metadata:
       name: storage
-      annotations:
-        volume.beta.kubernetes.io/storage-class: {{ .Values.master.storageClass }}
     spec:
       accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.master.storageClass }}
       resources:
         requests:
           storage: {{ .Values.master.storage }}
