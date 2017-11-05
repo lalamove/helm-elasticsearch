@@ -95,15 +95,16 @@ spec:
           protocol: TCP
         livenessProbe:
           tcpSocket:
-            port: 9300
+            port: transport
           initialDelaySeconds: 60
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /_cluster/health
-            port: 9200
+            port: http
           initialDelaySeconds: 20
           timeoutSeconds: 5
+          failureThreshold: 20
         volumeMounts:
         - mountPath: /data
           name: storage

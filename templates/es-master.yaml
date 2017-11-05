@@ -12,6 +12,7 @@ metadata:
 spec:
   serviceName: {{ template "fullname" . }}-master
   replicas: {{ .Values.master.replicas }}
+  podManagementPolicy: Parallel
   template:
     metadata:
       labels:
@@ -95,10 +96,21 @@ spec:
         - containerPort: 9200
           name: http
           protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /_cluster/health?local=true
+            port: http
+        {{- else }}
+        readinessProbe:
+          tcpSocket:
+            port: transport
         {{- end }}
+          initialDelaySeconds: 20
+          periodSeconds: 5
+          failureThreshold: 20
         livenessProbe:
           tcpSocket:
-            port: 9300
+            port: transport
           initialDelaySeconds: 60
           periodSeconds: 10
         volumeMounts:
