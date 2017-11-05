@@ -96,6 +96,8 @@ spec:
         livenessProbe:
           tcpSocket:
             port: 9300
+          initialDelaySeconds: 60
+          periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /_cluster/health
