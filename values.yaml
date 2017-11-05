@@ -8,7 +8,7 @@ common:
   serviceType: ClusterIP
 
   env:
-    CLUSTER_NAME: "myesdb"
+    CLUSTER_NAME: "elasticsearch"
     # Uncomment this if you get the "No up-and-running site-local (private)
     # addresses" error.
     # NETWORK_HOST: "_eth0_"
@@ -100,39 +100,3 @@ curator:
 service:
   httpPort: 9200
   transportPort: 9300
-
-kibana:
-  enabled: false
-  replicas: 1
-  image:
-    repository: blacktop/kibana
-    tag: 5.6.3
-    pullPolicy: Always
-  httpPort: 80
-  resources:
-    limits:
-      cpu: 200m
-      memory: 384Mi
-    requests:
-      cpu: 100m
-      memory: 256Mi
-  env:
-    XPACK_GRAPH_ENABLED: "false"
-    XPACK_ML_ENABLED: "false"
-    XPACK_REPORTING_ENABLED: "false"
-    XPACK_SECURITY_ENABLED: "false"
-  ingress:
-    # Used to create an Ingress record.
-    enabled: false
-    hosts:
-      # - kibana.local
-    annotations:
-      # kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: "true"
-    tls:
-      # Secrets must be manually created in the namespace.
-      # - secretName: kibana-tls
-      #   hosts:
-      #     - kibana.local
-rbac:
-  create: true
