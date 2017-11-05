@@ -1,24 +1,26 @@
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1beta1
+kind: StatefulSet
 metadata:
-  name: {{ template "fullname" . }}-client
+  name: {{ template "fullname" . }}-data
   labels:
     app: {{ template "fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
     component: {{ template "fullname" . }}
-    role: client
+    role: data
 spec:
-  replicas: {{ .Values.client.replicas }}
+  serviceName: {{ template "fullname" . }}-data
+  replicas: {{ .Values.data.replicas }}
+  podManagementPolicy: Parallel
   template:
     metadata:
       labels:
         component: {{ template "fullname" . }}
-        role: client
+        role: data
     spec:
       serviceAccountName: {{ template "fullname" . }}
-      {{- if eq .Values.client.antiAffinity "hard" }}
+      {{- if eq .Values.data.antiAffinity "hard" }}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -26,8 +28,8 @@ spec:
               labelSelector:
                 matchLabels:
                   component: {{ template "fullname" . }}
-                  role: client
-      {{- else if eq .Values.client.antiAffinity "soft" }}
+                  role: data
+      {{- else if eq .Values.data.antiAffinity "soft" }}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -37,7 +39,7 @@ spec:
               labelSelector:
                 matchLabels:
                   component: {{ template "fullname" . }}
-                  role: client
+                  role: data
       {{- end }}
       initContainers:
       - name: init-sysctl
@@ -47,14 +49,14 @@ spec:
         securityContext:
           privileged: true
       containers:
-      - name: es-client
+      - name: elasticsearch
+        image: "{{ .Values.common.image.repository }}:{{ .Values.common.image.tag }}"
+        imagePullPolicy: {{ .Values.common.image.pullPolicy }}
         securityContext:
           capabilities:
             add:
               - IPC_LOCK
               - SYS_RESOURCE
-        image: "{{ .Values.common.image.repository }}:{{ .Values.common.image.tag }}"
-        imagePullPolicy: {{ .Values.common.image.pullPolicy }}
         env:
         - name: NAMESPACE
           valueFrom:
@@ -67,44 +69,50 @@ spec:
         - name: DISCOVERY_SERVICE
           value: {{ template "fullname" . }}-discovery
         - name: ES_JAVA_OPTS
-          value: "-Djava.net.preferIPv4Stack=true -Xms{{ .Values.client.heapSize }} -Xmx{{ .Values.client.heapSize }}"
+          value: "-Djava.net.preferIPv4Stack=true -Xms{{ .Values.data.heapSize }} -Xmx{{ .Values.data.heapSize }}"
         - name: NODE_DATA
-          value: "false"
+          value: "true"
         - name: NODE_MASTER
           value: "false"
         - name: NODE_INGEST
-          value: "true"
+          value: "false"
         - name: HTTP_ENABLE
-          value: "true"
+          value: "{{ .Values.data.enableHTTP }}"
         - name: PROCESSORS
-          value: "{{ .Values.client.processors }}"
+          value: "{{ .Values.data.processors }}"
         {{- range $key, $value :=  .Values.common.env }}
         - name: {{ $key | upper | replace "-" "_" }}
           value: {{ $value | quote }}
         {{- end }}
-        {{- range $key, $value :=  .Values.client.env }}
+        {{- range $key, $value :=  .Values.data.env }}
         - name: {{ $key | upper | replace "-" "_" }}
           value: {{ $value | quote }}
         {{- end }}
         ports:
-        - containerPort: 9200
-          name: http
-          protocol: TCP
         - containerPort: 9300
           name: transport
           protocol: TCP
+        {{- if .Values.data.enableHTTP }}
+        - containerPort: 9200
+          name: http
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /_cluster/health?local=true
+            port: http
+        {{- else }}
+        readinessProbe:
+          tcpSocket:
+            port: transport
+        {{- end }}
+          initialDelaySeconds: 20
+          periodSeconds: 5
+          failureThreshold: 20
         livenessProbe:
           tcpSocket:
             port: transport
           initialDelaySeconds: 60
           periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /_cluster/health
-            port: http
-          initialDelaySeconds: 20
-          timeoutSeconds: 5
-          failureThreshold: 20
         volumeMounts:
         - mountPath: /data
           name: storage
@@ -115,6 +123,12 @@ spec:
         - configMap:
             name: {{ template "fullname" . }}-config
           name: config
-        - emptyDir:
-            medium: ""
-          name: "storage"
+  volumeClaimTemplates:
+  - metadata:
+      name: storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.data.storageClass }}
+      resources:
+        requests:
+          storage: {{ .Values.data.storage }}
