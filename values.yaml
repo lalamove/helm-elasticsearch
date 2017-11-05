@@ -47,6 +47,7 @@ data:
   storage: 12Gi
   storageClass: "default"
   heapSize: 256m
+  enableHTTP: false
   # More info on what this setting does is in the config map. Only change this
   # if you set the cpu limit to over 1 full cpu.
   processors: 1
@@ -69,6 +70,7 @@ master:
   storage: 2Gi
   storageClass: "default"
   heapSize: 256m
+  enableHTTP: false
   # More info on what this setting does is in the config map. Only change this
   # if you set the cpu limit to over 1 full cpu.
   processors: 1

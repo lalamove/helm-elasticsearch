@@ -76,7 +76,7 @@ spec:
         - name: NODE_INGEST
           value: "false"
         - name: HTTP_ENABLE
-          value: "false"
+          value: "{{ .Values.data.enableHTTP }}"
         - name: PROCESSORS
           value: "{{ .Values.data.processors }}"
         {{- range $key, $value :=  .Values.common.env }}
@@ -91,6 +91,11 @@ spec:
         - containerPort: 9300
           name: transport
           protocol: TCP
+        {{- if .Values.data.enableHTTP }}
+        - containerPort: 9200
+          name: http
+          protocol: TCP
+        {{- end }}
         livenessProbe:
           tcpSocket:
             port: 9300
