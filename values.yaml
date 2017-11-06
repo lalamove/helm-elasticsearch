@@ -6,6 +6,9 @@ common:
 
   # Defines the service type for all outward-facing (non-discovery) services.
   serviceType: ClusterIP
+  # Any extra or specific configuration that is needed can be added here.
+  config:
+    index.codec: best_compression
 
   env:
     CLUSTER_NAME: "elasticsearch"
