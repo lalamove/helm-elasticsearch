@@ -26,7 +26,7 @@ data:
       logs: /data/log
 
     bootstrap:
-      memory_lock: ${MEMORY_LOCK}
+      memory_lock: ${MEMORY_LOCK:false}
 
     http:
       enabled: ${HTTP_ENABLE}
@@ -42,3 +42,7 @@ data:
 
     # see https://github.com/elastic/elasticsearch-definitive-guide/pull/679
     processors: ${PROCESSORS:}
+
+{{- if .Values.common.config }}
+{{ toYaml .Values.common.config | indent 4 }}
+{- end }}
