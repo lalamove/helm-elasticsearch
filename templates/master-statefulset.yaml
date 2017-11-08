@@ -18,6 +18,13 @@ spec:
       labels:
         component: {{ template "fullname" . }}
         role: master
+        {{- if .Values.master.labels }}
+        {{ toYaml .Values.master.labels | indent 8 }}
+        {- end }}
+      {{- if .Values.master.annotations }}
+      annotations:
+        {{ toYaml .Values.master.annotations }}
+      {{- end }}
     spec:
       serviceAccountName: {{ template "fullname" . }}
       {{- if eq .Values.master.antiAffinity "hard" }}
