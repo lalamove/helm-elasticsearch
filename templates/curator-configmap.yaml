@@ -22,6 +22,7 @@ data:
         action: delete_indices
         description: "Clean up ES by deleting old indices"
         options:
+          ignore_empty_list: True
           timeout_override:
           continue_if_exception: False
           disable_action: False
