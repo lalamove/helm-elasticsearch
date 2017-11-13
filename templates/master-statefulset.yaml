@@ -19,11 +19,11 @@ spec:
         component: {{ template "fullname" . }}
         role: master
         {{- if .Values.master.labels }}
-        {{ toYaml .Values.master.labels | indent 8 }}
-        {- end }}
+{{ toYaml .Values.master.labels | indent 8 }}
+        {{- end }}
       {{- if .Values.master.annotations }}
       annotations:
-        {{ toYaml .Values.master.annotations }}
+{{ toYaml .Values.master.annotations | indent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ template "fullname" . }}

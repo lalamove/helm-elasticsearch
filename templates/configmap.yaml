@@ -45,4 +45,4 @@ data:
 
 {{- if .Values.common.config }}
 {{ toYaml .Values.common.config | indent 4 }}
-{- end }}
+{{- end }}

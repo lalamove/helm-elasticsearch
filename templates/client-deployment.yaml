@@ -17,11 +17,11 @@ spec:
         component: {{ template "fullname" . }}
         role: client
         {{- if .Values.client.labels }}
-        {{ toYaml .Values.client.labels | indent 8 }}
-        {- end }}
+{{ toYaml .Values.client.labels | indent 8 }}
+        {{- end }}
       {{- if .Values.client.annotations }}
       annotations:
-        {{ toYaml .Values.client.annotations }}
+{{ toYaml .Values.client.annotations | indent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ template "fullname" . }}
