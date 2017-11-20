@@ -8,37 +8,64 @@ metadata:
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
 data:
+  jvm.options: |-
+    ## GC configuration
+    -XX:+UseConcMarkSweepGC
+    -XX:CMSInitiatingOccupancyFraction=75
+    -XX:+UseCMSInitiatingOccupancyOnly
+    -XX:+AlwaysPreTouch
+    -server
+    -Xss1m
+    -Djava.awt.headless=true
+    -Dfile.encoding=UTF-8
+    -Djna.nosys=true
+    -XX:-OmitStackTraceInFastThrow
+    -Dio.netty.noUnsafe=true
+    -Dio.netty.noKeySetOptimization=true
+    -Dio.netty.recycler.maxCapacityPerThread=0
+    -Dlog4j.shutdownHookEnabled=false
+    -Dlog4j2.disable.jmx=true
+
+  log4j2.properties: |-
+    status = error
+    appender.console.type = Console
+    appender.console.name = console
+    appender.console.layout.type = PatternLayout
+    appender.console.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] %marker%m%n
+    rootLogger.level = info
+    rootLogger.appenderRef.console.ref = console
+
   elasticsearch.yml: |-
     cluster:
-      name: ${CLUSTER_NAME}
+      name: ${CLUSTER_NAME:elasticsearch}
 
     node:
-      master: ${NODE_MASTER}
-      data: ${NODE_DATA}
+      master: ${NODE_MASTER:true}
+      data: ${NODE_DATA:true}
       name: ${NODE_NAME}
-      ingest: ${NODE_INGEST}
-      max_local_storage_nodes: ${MAX_LOCAL_STORAGE_NODES}
+      ingest: ${NODE_INGEST:true}
+      max_local_storage_nodes: ${MAX_LOCAL_STORAGE_NODES:1}
 
-    network.host: ${NETWORK_HOST}
+    network.host: ${NETWORK_HOST:_local_}
 
     path:
-      data: /data/data
-      logs: /data/log
+      data: /storage/data
+      logs: /storage/logs
 
     bootstrap:
       memory_lock: ${MEMORY_LOCK:false}
 
     http:
-      enabled: ${HTTP_ENABLE}
+      enabled: ${HTTP_ENABLE:true}
       compression: true
       cors:
-        enabled: ${HTTP_CORS_ENABLE}
-        allow-origin: ${HTTP_CORS_ALLOW_ORIGIN}
+        enabled: ${HTTP_CORS_ENABLE:false}
+        allow-origin: ${HTTP_CORS_ALLOW_ORIGIN:"*"}
 
     discovery:
       zen:
-        ping.unicast.hosts: ${DISCOVERY_SERVICE}
-        minimum_master_nodes: ${NUMBER_OF_MASTERS}
+        ping.unicast.hosts: ${DISCOVERY_SERVICE:}
+        minimum_master_nodes: ${NUMBER_OF_MASTERS:1}
 
     # see https://github.com/elastic/elasticsearch-definitive-guide/pull/679
     processors: ${PROCESSORS:}

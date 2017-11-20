@@ -25,3 +25,45 @@ Return the appropriate apiVersion for Curactor cron job.
 "batch/v2alpha1"
 {{- end -}}
 {{- end -}}
+{{/*
+init container template
+*/}}
+{{- define "init-containers" -}}
+- name: init-sysctl
+  image: busybox
+  imagePullPolicy: IfNotPresent
+  command: ["sysctl", "-w", "vm.max_map_count=262144"]
+  securityContext:
+    privileged: true
+{{- if .plugins }}
+- name: es-plugin-install
+  image: "{{ .image.repository }}:{{ .image.tag }}"
+  imagePullPolicy: {{ .image.pullPolicy }}
+  securityContext:
+    capabilities:
+      add:
+        - IPC_LOCK
+        - SYS_RESOURCE
+  command:
+    - "sh"
+  args:
+    - "-c"
+    - "{{- range .plugins }}elasticsearch-plugin install {{ . }};{{- end }}"
+  env:
+  - name: NODE_NAME
+    value: es-plugin-install
+  volumeMounts:
+  - mountPath: /usr/share/elasticsearch/config/
+    name: configdir
+  - mountPath: /usr/share/elasticsearch/plugins/
+    name: plugindir
+  - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+    name: config
+    subPath: elasticsearch.yml
+volumes:
+  - name: configdir
+    emptyDir: {}
+  - name: plugindir
+    emptyDir: {}
+{{- end }}
+{{- end -}}
