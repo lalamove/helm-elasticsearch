@@ -4,12 +4,14 @@ together with some open pull requests on https://github.com/clockworksoul/helm-e
 
 ## Features
  - RBAC support
- - Uses pires/docker-elasticsearch-kubernetes image which tracks ES release versions very well
- - Install Elasticsearch Addons through environment variable ES_PLUGINS_INSTALL
- - Latest version of Elasticsearch
+ - Elasticsearch Curator (to prune old indicies)
+ - Install Elasticsearch Addons through init container
+ - Compatible with stock elasticsearch docker images because cluster auto-discovery is without plugins
+ - Latest version of Elasticsearch in an Alpine image (blacktop/elasticsearch)
 
 ## Deploying with Helm
 
+Read the comments in values.yaml and customise them to suit your needs. The sizes and resource limits are suitable for a minikube deploy. Production deploys will require significantly more resources.
 With Helm properly installed and configured, standing up a complete cluster is almost trivial:
 
 ```
