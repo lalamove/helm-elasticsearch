@@ -25,6 +25,8 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ template "fullname" . }}
+      securityContext:
+        fsGroup: 1000
       {{- if eq .Values.client.antiAffinity "hard" }}
       affinity:
         podAntiAffinity:
@@ -47,12 +49,7 @@ spec:
                   role: client
       {{- end }}
       initContainers:
-      - name: init-sysctl
-        image: busybox
-        imagePullPolicy: IfNotPresent
-        command: ["sysctl", "-w", "vm.max_map_count=262144"]
-        securityContext:
-          privileged: true
+{{ include "init-containers" .Values.common | indent 6}}
       containers:
       - name: elasticsearch
         securityContext:
@@ -113,15 +110,29 @@ spec:
           timeoutSeconds: 5
           failureThreshold: 20
         volumeMounts:
-        - mountPath: /data
+        - mountPath: /usr/share/elasticsearch/config/
+          name: configdir
+        - mountPath: /usr/share/elasticsearch/plugins/
+          name: plugindir
+        - mountPath: /storage/
           name: storage
-        - mountPath: /elasticsearch/config/elasticsearch.yml
+        - mountPath: /usr/share/elasticsearch/config/jvm.settings
+          name: config
+          subPath: jvm.settings
+        - mountPath: /usr/share/elasticsearch/config/log4j2.properties
+          name: config
+          subPath: log4j2.properties
+        - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
           name: config
           subPath: elasticsearch.yml
       volumes:
+        - name: configdir
+          emptyDir: {}
+        - name: plugindir
+          emptyDir: {}
         - configMap:
             name: {{ template "fullname" . }}-config
           name: config
         - emptyDir:
             medium: ""
-          name: "storage"
+          name: storage

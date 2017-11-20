@@ -27,6 +27,8 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ template "fullname" . }}
+      securityContext:
+        fsGroup: 1000
       {{- if eq .Values.master.antiAffinity "hard" }}
       affinity:
         podAntiAffinity:
@@ -49,12 +51,7 @@ spec:
                   role: master
       {{- end }}
       initContainers:
-      - name: init-sysctl
-        image: busybox
-        imagePullPolicy: IfNotPresent
-        command: ["sysctl", "-w", "vm.max_map_count=262144"]
-        securityContext:
-          privileged: true
+{{ include "init-containers" .Values.common | indent 6}}
       containers:
       - name: elasticsearch
         securityContext:
@@ -84,7 +81,7 @@ spec:
         - name: NODE_INGEST
           value: "false"
         - name: HTTP_ENABLE
-          value: "{{ .Values.data.enableHTTP }}"
+          value: "{{ .Values.master.enableHTTP }}"
         - name: PROCESSORS
           value: "{{ .Values.master.processors }}"
         {{- range $key, $value :=  .Values.common.env }}
@@ -99,7 +96,7 @@ spec:
         - containerPort: 9300
           name: transport
           protocol: TCP
-        {{- if .Values.data.enableHTTP }}
+        {{- if .Values.master.enableHTTP }}
         - containerPort: 9200
           name: http
           protocol: TCP
@@ -121,12 +118,26 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 10
         volumeMounts:
-        - mountPath: /data
+        - mountPath: /usr/share/elasticsearch/config/
+          name: configdir
+        - mountPath: /usr/share/elasticsearch/plugins/
+          name: plugindir
+        - mountPath: /storage/
           name: storage
-        - mountPath: /elasticsearch/config/elasticsearch.yml
+        - mountPath: /usr/share/elasticsearch/config/jvm.settings
+          name: config
+          subPath: jvm.settings
+        - mountPath: /usr/share/elasticsearch/config/log4j2.properties
+          name: config
+          subPath: log4j2.properties
+        - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
           name: config
           subPath: elasticsearch.yml
       volumes:
+        - name: configdir
+          emptyDir: {}
+        - name: plugindir
+          emptyDir: {}
         - configMap:
             name: {{ template "fullname" . }}-config
           name: config

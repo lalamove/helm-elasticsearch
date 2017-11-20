@@ -1,14 +1,18 @@
 common:
   image:
-    repository: quay.io/pires/docker-elasticsearch-kubernetes
-    tag: 5.6.3
-    pullPolicy: Always
+    repository: blacktop/elasticsearch
+    tag: "6.0"
+    pullPolicy: IfNotPresent
 
   # Defines the service type for all outward-facing (non-discovery) services.
   serviceType: ClusterIP
   # Any extra or specific configuration that is needed can be added here.
   config:
     index.codec: best_compression
+  # If you want any plugins installed, give them here as a list. They will be
+  # passed to elasticsearch-plugin install {line here}
+  plugins:
+  # - ingest-geoip
 
   env:
     CLUSTER_NAME: "elasticsearch"
