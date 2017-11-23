@@ -46,9 +46,8 @@ init container template
         - SYS_RESOURCE
   command:
     - "sh"
-  args:
     - "-c"
-    - "{{- range .plugins }}elasticsearch-plugin install {{ . }};{{- end }}"
+    - "{{- range .plugins }}elasticsearch-plugin install {{ . }};{{- end }} true"
   env:
   - name: NODE_NAME
     value: es-plugin-install
