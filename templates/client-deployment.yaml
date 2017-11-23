@@ -116,9 +116,9 @@ spec:
           name: plugindir
         - mountPath: /storage/
           name: storage
-        - mountPath: /usr/share/elasticsearch/config/jvm.settings
+        - mountPath: /usr/share/elasticsearch/config/jvm.options
           name: config
-          subPath: jvm.settings
+          subPath: jvm.options
         - mountPath: /usr/share/elasticsearch/config/log4j2.properties
           name: config
           subPath: log4j2.properties
