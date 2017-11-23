@@ -47,7 +47,7 @@ init container template
   command:
     - "sh"
     - "-c"
-    - "{{- range .plugins }}elasticsearch-plugin install {{ . }};{{- end }} true"
+    - "{{- range .plugins }}elasticsearch-plugin install {{ . }};{{- end }} chown -R elasticsearch: /usr/share/elasticsearch/; true"
   env:
   - name: NODE_NAME
     value: es-plugin-install
