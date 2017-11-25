@@ -16,7 +16,7 @@ spec:
         spec:
           containers:
           - name: curator
-            image: bobrik/curator
+            image: quay.io/lalamove/elasticsearch-curator:5.4.0
             args: ["--config", "/etc/config/config.yml", "/etc/config/action_file.yml"]
             volumeMounts:
               - name: config-volume
