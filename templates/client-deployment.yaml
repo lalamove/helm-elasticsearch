@@ -24,6 +24,7 @@ spec:
 {{ toYaml .Values.client.annotations | indent 8 }}
       {{- end }}
     spec:
+      subdomain: {{ template "fullname" . }}
       serviceAccountName: {{ template "fullname" . }}
       securityContext:
         fsGroup: 1000
@@ -49,7 +50,7 @@ spec:
                   role: client
       {{- end }}
       initContainers:
-{{ include "init-containers" .Values.common | indent 6}}
+{{ include "init-containers" . | indent 6 }}
       containers:
       - name: elasticsearch
         securityContext:
@@ -69,7 +70,7 @@ spec:
             fieldRef:
               fieldPath: metadata.name
         - name: DISCOVERY_SERVICE
-          value: {{ template "fullname" . }}-discovery
+          value: {{ template "fullname" . }}-discovery.{{ .Release.Namespace }}.svc.{{ .Values.tls.clusterDomain }}
         - name: ES_JAVA_OPTS
           value: "-Djava.net.preferIPv4Stack=true -Xms{{ .Values.client.heapSize }} -Xmx{{ .Values.client.heapSize }}"
         - name: NODE_DATA
@@ -110,10 +111,17 @@ spec:
           timeoutSeconds: 5
           failureThreshold: 20
         volumeMounts:
+        {{- if .Values.common.plugins }}
         - mountPath: /usr/share/elasticsearch/config/
           name: configdir
         - mountPath: /usr/share/elasticsearch/plugins/
           name: plugindir
+        {{- end }}
+        {{- if .Values.tls.enable }}
+        - mountPath: /usr/share/elasticsearch/config/tls/
+          name: tls
+          readOnly: true
+        {{- end }}
         - mountPath: /storage/
           name: storage
         - mountPath: /usr/share/elasticsearch/config/jvm.options
@@ -126,10 +134,16 @@ spec:
           name: config
           subPath: elasticsearch.yml
       volumes:
+        {{- if .Values.common.plugins }}
         - name: configdir
           emptyDir: {}
         - name: plugindir
           emptyDir: {}
+        {{- end }}
+        {{- if .Values.tls.enable }}
+        - name: tls
+          emptyDir: {}
+        {{- end }}
         - configMap:
             name: {{ template "fullname" . }}-config
           name: config

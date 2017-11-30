@@ -12,7 +12,8 @@ common:
   # If you want any plugins installed, give them here as a list. They will be
   # passed to elasticsearch-plugin install {line here}
   plugins:
-  # - ingest-geoip
+  # You need to enable this plugin if you want to use the TLS option at the bottom
+  # - com.floragunn:search-guard-ssl:6.0.0-24.beta1.1
 
   env:
     CLUSTER_NAME: "elasticsearch"
@@ -115,3 +116,10 @@ service:
 
 rbac:
   create: true
+
+tls:
+  enable: false
+  clusterDomain: cluster.local
+  image: quay.io/lalamove/certificate-init-container
+  tag: v0.0.4
+  pullPolicy: "IfNotPresent"

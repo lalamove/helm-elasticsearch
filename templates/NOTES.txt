@@ -1,4 +1,12 @@
 The elasticsearch cluster has been installed.
+{{- if .Values.tls.enable }}
+
+BEFORE ELASTICSEARCH CAN START, YOU NEED TO APPROVE THE CERTIFICATE REQUESTS
+Please run:
+    kubectl certificate approve $(kubectl get csr -n {{ .Release.Namespace }} -l "component={{ template "fullname" . }}" | awk '{print $1}')
+Once you have verified that all nodes have requested a certificate by running:
+    kubectl get certificatesigningrequests --namespace {{ .Release.Namespace }} -l "component={{ template "fullname" . }}"
+{{- end }}
 
 Elasticsearch can be accessed:
 

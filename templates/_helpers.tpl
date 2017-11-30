@@ -35,10 +35,51 @@ init container template
   command: ["sysctl", "-w", "vm.max_map_count=262144"]
   securityContext:
     privileged: true
-{{- if .plugins }}
+{{- if $.Values.tls.enable }}
+- name: generate-tls-pair
+  image: "{{ .Values.tls.image }}:{{ .Values.tls.tag }}"
+  imagePullPolicy: {{ .Values.tls.pullPolicy }}
+  env:
+  - name: NAMESPACE
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+  - name: POD_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.name
+  - name: SUBDOMAIN
+    value: {{ template "fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.tls.clusterDomain }}
+  - name: POD_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.podIP
+  args:
+  - "-namespace=$(NAMESPACE)"
+  - "-pod-ip=$(POD_IP)"
+  - "-pod-name=$(POD_NAME)"
+  - "-hostname=$(POD_NAME)"
+  - "-subdomain=$(SUBDOMAIN)"
+  - "-headless-name-as-cn"
+  - "-service-names={{ template "fullname" . }}-discovery"
+  - "-cert-dir=/tls/"
+  - "-pkcs8"
+  - "-labels=component={{ template "fullname" . }}"
+  volumeMounts:
+    - name: tls
+      mountPath: /tls
+- name: copy-ca
+  image: busybox
+  imagePullPolicy: IfNotPresent
+  command: ["cp", "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt", "/tls/ca.crt"]
+  volumeMounts:
+    - name: tls
+      mountPath: /tls
+{{- end }}
+{{- if .Values.common.plugins }}
 - name: es-plugin-install
-  image: "{{ .image.repository }}:{{ .image.tag }}"
-  imagePullPolicy: {{ .image.pullPolicy }}
+  image: "{{ .Values.common.image.repository }}:{{ .Values.common.image.tag }}"
+  imagePullPolicy: {{ .Values.common.image.pullPolicy }}
   securityContext:
     capabilities:
       add:
@@ -47,7 +88,7 @@ init container template
   command:
     - "sh"
     - "-c"
-    - "{{- range .plugins }}elasticsearch-plugin install {{ . }};{{- end }} chown -R elasticsearch: /usr/share/elasticsearch/; true"
+    - "{{- range .Values.common.plugins }}elasticsearch-plugin install {{ . }};{{- end }} chown -R elasticsearch: /usr/share/elasticsearch/; true"
   env:
   - name: NODE_NAME
     value: es-plugin-install
@@ -59,10 +100,5 @@ init container template
   - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
     name: config
     subPath: elasticsearch.yml
-volumes:
-  - name: configdir
-    emptyDir: {}
-  - name: plugindir
-    emptyDir: {}
 {{- end }}
 {{- end -}}
