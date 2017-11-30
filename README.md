@@ -19,6 +19,9 @@ $ git clone https://github.com/lalamove/helm-elasticsearch.git elasticsearch
 $ helm install elasticsearch
 ```
 
+## Enabling TLS
+If you enable TLS you need to keep two things in mind. First, make sure the `clusterDomain` is correct. And second, make sure you approve the certificate requests by using `kubectl certificate approve ...`
+
 ## Contributing
 
 Please do! Taking pull requests.

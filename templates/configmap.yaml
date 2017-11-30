@@ -69,6 +69,23 @@ data:
 
     # see https://github.com/elastic/elasticsearch-definitive-guide/pull/679
     processors: ${PROCESSORS:}
+    {{- if .Values.tls.enable }}
+    searchguard:
+      #  nodes_dn:
+      #    - "CN=*.{{ template "fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.tls.clusterDomain }}"
+      ssl:
+        http:
+          enabled_protocols:
+          - "TLSv1.2"
+          - "TLSv1.1"
+          pemkey_filepath: tls/tls.key
+          pemcert_filepath: tls/tls.crt
+          pemtrustedcas_filepath: tls/ca.crt
+        transport:
+          pemkey_filepath: tls/tls.key
+          pemcert_filepath: tls/tls.crt
+          pemtrustedcas_filepath: tls/ca.crt
+    {{- end }}
 
 {{- if .Values.common.config }}
 {{ toYaml .Values.common.config | indent 4 }}
