@@ -4,9 +4,10 @@ together with some open pull requests on https://github.com/clockworksoul/helm-e
 
 ## Features
  - RBAC support
+ - TLS support using Kubernetes certificate API
  - Elasticsearch Curator (to prune old indicies)
  - Install Elasticsearch Addons through init container
- - Compatible with stock elasticsearch docker images because cluster auto-discovery is without plugins
+ - Compatible with any vanilla elasticsearch install
  - Latest version of Elasticsearch in an Alpine image (blacktop/elasticsearch)
 
 ## Deploying with Helm
