@@ -107,6 +107,9 @@ spec:
           httpGet:
             path: /_cluster/health
             port: http
+        {{- if .Values.tls.enable }}
+            scheme: HTTPS
+        {{- end }}
           initialDelaySeconds: 20
           timeoutSeconds: 5
           failureThreshold: 20
