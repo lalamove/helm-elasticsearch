@@ -49,7 +49,7 @@ init container template
       fieldRef:
         fieldPath: metadata.name
   - name: SUBDOMAIN
-    value: {{ template "fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.tls.clusterDomain }}
+    value: {{ template "fullname" . }}
   - name: POD_IP
     valueFrom:
       fieldRef:
@@ -61,7 +61,7 @@ init container template
   - "-hostname=$(POD_NAME)"
   - "-subdomain=$(SUBDOMAIN)"
   - "-headless-name-as-cn"
-  - "-service-names={{ template "fullname" . }}-discovery"
+  - "-service-names={{ template "fullname" . }}-discovery,{{ template "fullname" . }}"
   - "-cert-dir=/tls/"
   - "-pkcs8"
   - "-labels=component={{ template "fullname" . }}"
@@ -88,11 +88,13 @@ init container template
   command:
     - "sh"
     - "-c"
-    - "{{- range .Values.common.plugins }}elasticsearch-plugin install {{ . }};{{- end }} chown -R elasticsearch: /usr/share/elasticsearch/; true"
+    - "{{- range .Values.common.plugins }}elasticsearch-plugin install {{ . }};{{- end }} chown -R elasticsearch: /usr/share/elasticsearch/ /storage/; true"
   env:
   - name: NODE_NAME
     value: es-plugin-install
   volumeMounts:
+  - mountPath: /storage/
+    name: storage
   - mountPath: /usr/share/elasticsearch/config/
     name: configdir
   - mountPath: /usr/share/elasticsearch/plugins/

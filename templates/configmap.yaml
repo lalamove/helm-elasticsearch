@@ -75,6 +75,7 @@ data:
       #    - "CN=*.{{ template "fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.tls.clusterDomain }}"
       ssl:
         http:
+          enabled: true
           enabled_protocols:
           - "TLSv1.2"
           - "TLSv1.1"

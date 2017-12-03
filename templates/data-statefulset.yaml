@@ -105,6 +105,9 @@ spec:
           httpGet:
             path: /_cluster/health?local=true
             port: http
+        {{- if .Values.tls.enable }}
+            scheme: HTTPS
+        {{- end }}
         {{- else }}
         readinessProbe:
           tcpSocket:
