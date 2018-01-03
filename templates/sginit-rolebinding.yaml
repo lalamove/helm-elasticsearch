@@ -1,0 +1,21 @@
+{{- if .Values.searchguard.enable -}}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  labels:
+    app: {{ template "fullname" .}}
+    component: sginit
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ template "fullname" . }}-sginit
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ template "fullname" . }}-sginit
+subjects:
+- kind: ServiceAccount
+  name: {{ template "fullname" . }}-sginit
+  namespace: {{ .Release.Namespace }}
+{{- end -}}

@@ -104,11 +104,16 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 10
         readinessProbe:
+        {{- if .Values.searchguard.enable }}
+          tcpSocket:
+            port: http
+        {{- else }}
           httpGet:
             path: /_cluster/health
             port: http
-        {{- if .Values.tls.enable }}
+            {{- if .Values.tls.enable }}
             scheme: HTTPS
+            {{- end }}
         {{- end }}
           initialDelaySeconds: 20
           timeoutSeconds: 5
@@ -136,6 +141,10 @@ spec:
         - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
           name: config
           subPath: elasticsearch.yml
+        {{- if .Values.searchguard.enable }}
+        - mountPath: /usr/share/elasticsearch/plugins/search-guard-6/sgconfig/
+          name: searchguard-config
+        {{- end }}
       volumes:
         {{- if .Values.common.plugins }}
         - name: configdir
@@ -153,3 +162,8 @@ spec:
         - emptyDir:
             medium: ""
           name: storage
+        {{- if .Values.searchguard.enable }}
+        - configMap:
+            name: {{ template "fullname" . }}-searchguard-config
+          name: searchguard-config
+        {{- end }}

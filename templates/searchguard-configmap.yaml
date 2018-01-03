@@ -1,0 +1,332 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}-searchguard-config
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+data:
+  sg_action_groups.yml: |-
+    UNLIMITED:
+      readonly: true
+      permissions:
+        - "*"
+    INDICES_ALL:
+      readonly: true
+      permissions:
+        - "indices:*"
+    MANAGE:
+      readonly: true
+      permissions:
+        - "indices:monitor/*"
+        - "indices:admin/*"
+    CREATE_INDEX:
+      readonly: true
+      permissions:
+        - "indices:admin/create"
+        - "indices:admin/mapping/put"
+    MANAGE_ALIASES:
+      readonly: true
+      permissions:
+        - "indices:admin/aliases*"
+    INDICES_MONITOR:
+      readonly: true
+      permissions:
+        - "indices:monitor/*"
+    DATA_ACCESS:
+      readonly: true
+      permissions:
+        - "indices:data/*"
+        - CRUD
+    WRITE:
+      readonly: true
+      permissions:
+        - "indices:data/write*"
+        - "indices:admin/mapping/put"
+    READ:
+      readonly: true
+      permissions:
+        - "indices:data/read*"
+        - "indices:admin/mappings/fields/get*"
+    DELETE:
+      readonly: true
+      permissions:
+        - "indices:data/write/delete*"
+    CRUD:
+      readonly: true
+      permissions:
+        - READ
+        - WRITE
+    SEARCH:
+      readonly: true
+      permissions:
+        - "indices:data/read/search*"
+        - "indices:data/read/msearch*"
+        - SUGGEST
+    SUGGEST:
+      readonly: true
+      permissions:
+        - "indices:data/read/suggest*"
+    INDEX:
+      readonly: true
+      permissions:
+        - "indices:data/write/index*"
+        - "indices:data/write/update*"
+        - "indices:admin/mapping/put"
+        - "indices:data/write/bulk*"
+    GET:
+      readonly: true
+      permissions:
+        - "indices:data/read/get*"
+        - "indices:data/read/mget*"
+
+    CLUSTER_ALL:
+      readonly: true
+      permissions:
+        - "cluster:*"
+    CLUSTER_MONITOR:
+      readonly: true
+      permissions:
+        - "cluster:monitor/*"
+    CLUSTER_COMPOSITE_OPS_RO:
+      readonly: true
+      permissions:
+        - "indices:data/read/mget"
+        - "indices:data/read/msearch"
+        - "indices:data/read/mtv"
+        - "indices:data/read/coordinate-msearch*"
+        - "indices:admin/aliases/exists*"
+        - "indices:admin/aliases/get*"
+        - "indices:data/read/scroll"
+    CLUSTER_COMPOSITE_OPS:
+      readonly: true
+      permissions:
+        - "indices:data/write/bulk"
+        - "indices:admin/aliases*"
+        - CLUSTER_COMPOSITE_OPS_RO
+    MANAGE_SNAPSHOTS:
+      readonly: true
+      permissions:
+        - "cluster:admin/snapshot/*"
+        - "cluster:admin/repository/*"
+  sg_config.yml: |-
+    searchguard:
+      dynamic:
+        kibana:
+          multitenancy_enabled: false
+          server_username: {{ .Values.searchguard.kibana_user }}
+          index: '.kibana'
+          do_not_fail_on_forbidden: false
+        http:
+          anonymous_auth_enabled: false
+          xff:
+            enabled: true
+            internalProxies: '.+' # since we require clientauth cert for http, we do not need to do IP filtering
+            remoteIpHeader:  'x-forwarded-for'
+            proxiesHeader:   'x-forwarded-by'
+            trustedProxies: '.+' # trust all external proxies, regex pattern
+        authc:
+          proxy_auth_domain:
+            http_enabled: true
+            transport_enabled: false
+            order: 0
+            http_authenticator:
+              type: proxy
+              challenge: false
+              config:
+                user_header: "x-forwarded-email"
+                #roles_header: "x-proxy-roles"
+            authentication_backend:
+              type: noop
+          clientcert_auth_domain:
+            http_enabled: true
+            transport_enabled: true
+            order: 1
+            http_authenticator:
+              type: clientcert
+              config:
+                username_attribute: ou #optional, if omitted DN becomes username
+              challenge: false
+            authentication_backend:
+              type: noop
+  sg_roles.yml: |-
+    # Allows everything, but no changes to searchguard configuration index
+    sg_all_access:
+      readonly: true
+      cluster:
+        - UNLIMITED
+      indices:
+        '*':
+          '*':
+            - UNLIMITED
+      tenants:
+        admin_tenant: RW
+
+    # Read all, but no write permissions
+    sg_readall:
+      readonly: true
+      cluster:
+        - CLUSTER_COMPOSITE_OPS_RO
+      indices:
+        '*':
+          '*':
+            - READ
+
+    # Read all and monitor, but no write permissions
+    sg_readall_and_monitor:
+      cluster:
+        - CLUSTER_MONITOR
+        - CLUSTER_COMPOSITE_OPS_RO
+      indices:
+        '*':
+          '*':
+            - READ
+
+    # For users which use kibana, access to indices must be granted separately
+    sg_kibana_user:
+      readonly: true
+      cluster:
+        - MONITOR
+        - CLUSTER_COMPOSITE_OPS_RO
+      indices:
+        '?kibana':
+          '*':
+            - MANAGE
+            - INDEX
+            - READ
+            - DELETE
+        '*':
+          '*':
+            - "indices:data/read/field_caps"
+
+    # For the kibana server
+    sg_kibana_server:
+      readonly: true
+      cluster:
+        - CLUSTER_MONITOR
+        - CLUSTER_COMPOSITE_OPS
+        - "indices:admin/template/put"
+      indices:
+        'logstash-*':
+          '*':
+            - "indices:data/read/field_caps*"
+        '?kibana':
+          '*':
+            - INDICES_ALL
+        '?reporting*':
+          '*':
+            - INDICES_ALL
+        '?monitoring*':
+          '*':
+            - INDICES_ALL
+
+    sg_logreader:
+      readonly: true
+      indices:
+        'logstash-*':
+          '*':
+            - READ
+
+    # For logstash and beats
+    sg_logwrite:
+      readonly: true
+      cluster:
+        - CLUSTER_MONITOR
+        - CLUSTER_COMPOSITE_OPS
+        - "indices:admin/template/get"
+        - "indices:admin/template/put"
+      indices:
+        'logstash-*':
+          '*':
+            - WRITE
+            - CREATE_INDEX
+        '*beat*':
+          '*':
+            - WRITE
+            - CREATE_INDEX
+
+    sg_prometheus:
+      readonly: true
+      cluster:
+        - CLUSTER_MONITOR
+        - INDICES_MONITOR
+
+    sg_curator:
+      readonly: true
+      cluster:
+        - CLUSTER_MONITOR
+        - CLUSTER_COMPOSITE_OPS
+      indicies:
+        'logstash-*':
+          '*':
+            - INDICES_MONITOR
+            - DELETE
+
+    # Allows adding and modifying repositories and creating and restoring snapshots
+    sg_manage_snapshots:
+      readonly: true
+      cluster:
+        - MANAGE_SNAPSHOTS
+      indices:
+        '*':
+          '*':
+            - "indices:data/write/index"
+            - "indices:admin/create"
+
+    # Allows each user to access own named index
+    sg_own_index:
+      cluster:
+        - CLUSTER_COMPOSITE_OPS
+      indices:
+        '${user_name}':
+          '*':
+            - INDICES_ALL
+
+  sg_roles_mapping.yml: |-
+    sg_curator:
+      readonly: true
+      users:
+        - curator
+    sg_prometheus:
+      readonly: true
+      users:
+        - prometheus
+    sg_all_access:
+      readonly: true
+      users:
+{{ toYaml .Values.searchguard.admins | indent 8 }}
+      backendroles:
+        - admin
+    sg_logwrite:
+      users:
+        - logwrite
+    sg_kibana_server:
+      readonly: true
+      users:
+        - kibana
+    sg_kibana_user:
+      users:
+{{ toYaml .Values.searchguard.users | indent 8 }}
+    sg_logreader:
+      users:
+{{ toYaml .Values.searchguard.users | indent 8 }}
+      backendroles:
+        - kibanauser
+    sg_readall:
+      readonly: true
+      backendroles:
+        - readall
+    sg_manage_snapshots:
+      readonly: true
+      backendroles:
+        - snapshotrestore
+    sg_own_index:
+      users:
+        - '*'
+
+  sg_internal_users.yml: |-
+    # This is the internal user database
+    # The hash value is a bcrypt hash and can be generated with plugin/tools/hash.sh
+    {}

@@ -1,0 +1,20 @@
+{{- if .Values.curator.enable -}}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: {{ template "fullname" .}}
+    component: curator
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ template "fullname" . }}-curator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ template "fullname" . }}-curator
+subjects:
+- kind: ServiceAccount
+  name: {{ template "fullname" . }}-curator
+  namespace: {{ .Release.Namespace }}
+{{- end -}}

@@ -1,4 +1,4 @@
-{{- if .Values.curator.enabled }}
+{{- if .Values.curator.enable }}
 apiVersion: {{ template "curator.cronJob.apiVersion" . }}
 kind: CronJob
 metadata:
@@ -14,14 +14,57 @@ spec:
     spec:
       template:
         spec:
+          serviceAccountName: {{ template "fullname" . }}-curator
+          subdomain: "{{ template "fullname" . }}"
+          {{- if .Values.tls.enable }}
+          initContainers:
+            - name: generate-tls-pair
+              image: "{{ .Values.tls.image }}:{{ .Values.tls.imageTag }}"
+              imagePullPolicy: "{{ .Values.tls.imagePullPolicy }}"
+              env:
+              - name: NAMESPACE
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.namespace
+              - name: POD_NAME
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.name
+              - name: SUBDOMAIN
+                value: {{ template "fullname" . }}
+              - name: POD_IP
+                valueFrom:
+                  fieldRef:
+                    fieldPath: status.podIP
+              args:
+              - "-namespace=$(NAMESPACE)"
+              - "-pod-ip=$(POD_IP)"
+              - "-pod-name=$(POD_NAME)"
+              - "-hostname=$(POD_NAME)"
+              - "-subdomain=$(SUBDOMAIN)"
+              - "-organizations=logging"
+              - "-organizational-units=curator"
+              - "-headless-name-as-cn"
+              - "-service-names={{ template "fullname" . }}-discovery,{{ template "fullname" . }}"
+              - "-pkcs8"
+              - "-labels=component={{ template "fullname" . }}"
+              - "-secret-name={{ template "fullname" . }}-curator-keys"
+          {{- end }}
           containers:
-          - name: curator
-            image: quay.io/lalamove/elasticsearch-curator:5.4.0
-            args: ["--config", "/etc/config/config.yml", "/etc/config/action_file.yml"]
-            volumeMounts:
-              - name: config-volume
-                mountPath: /etc/config
+            - name: curator
+              image: "{{ .Values.curator.image }}:{{ .Values.curator.imageTag }}"
+              imagePullPolicy: "{{ .Values.curator.imagePullPolicy }}"
+              args: ["--config", "/etc/config/config.yml", "/etc/config/action_file.yml"]
+              volumeMounts:
+                - name: config-volume
+                  mountPath: /etc/config
+                - name: tls
+                  mountPath: /tls
           volumes:
+            - name: tls
+              secret:
+                secretName: {{ template "fullname" . }}-curator-keys
+                defaultMode: 511
             - name: config-volume
               configMap:
                 name: {{ template "fullname" . }}-curator-config
