@@ -37,8 +37,8 @@ init container template
     privileged: true
 {{- if $.Values.tls.enable }}
 - name: generate-tls-pair
-  image: "{{ .Values.tls.image }}:{{ .Values.tls.tag }}"
-  imagePullPolicy: {{ .Values.tls.pullPolicy }}
+  image: "{{ .Values.tls.image }}:{{ .Values.tls.imageTag }}"
+  imagePullPolicy: {{ .Values.tls.imagePullPolicy }}
   env:
   - name: NAMESPACE
     valueFrom:
@@ -88,7 +88,7 @@ init container template
   command:
     - "sh"
     - "-c"
-    - "{{- range .Values.common.plugins }}elasticsearch-plugin install {{ . }};{{- end }} chown -R elasticsearch: /usr/share/elasticsearch/ /storage/; true"
+    - "{{ if .Values.searchguard.enable }}elasticsearch-plugin install {{ .Values.searchguard.plugin }};{{ end }}{{- range .Values.common.plugins }}elasticsearch-plugin install {{ . }};{{- end }} true"
   env:
   - name: NODE_NAME
     value: es-plugin-install
@@ -102,5 +102,13 @@ init container template
   - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
     name: config
     subPath: elasticsearch.yml
+  - mountPath: /usr/share/elasticsearch/config/tls/
+    name: tls
 {{- end }}
+- name: permissions
+  image: busybox
+  command: ["sh", "-c", "chmod 400 /usr/share/elasticsearch/config/tls/*; chown -R 1000: /usr/share/elasticsearch/ /storage/; true"]
+  volumeMounts:
+  - mountPath: /storage
+    name: storage
 {{- end -}}

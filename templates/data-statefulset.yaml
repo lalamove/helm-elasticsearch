@@ -101,18 +101,20 @@ spec:
         - containerPort: 9200
           name: http
           protocol: TCP
+        {{- end }}
         readinessProbe:
+          {{- if and .Values.master.enableHTTP (not .Values.searchguard.enable) }}
+          {{/* We cannot use http readinessProbe for searchguard since it requires client cert auth */}}
           httpGet:
             path: /_cluster/health?local=true
             port: http
-        {{- if .Values.tls.enable }}
+            {{- if .Values.tls.enable }}
             scheme: HTTPS
-        {{- end }}
-        {{- else }}
-        readinessProbe:
+            {{- end }}
+          {{- else }}
           tcpSocket:
             port: transport
-        {{- end }}
+          {{- end }}
           initialDelaySeconds: 20
           periodSeconds: 5
           failureThreshold: 20
@@ -144,6 +146,10 @@ spec:
         - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
           name: config
           subPath: elasticsearch.yml
+        {{- if .Values.searchguard.enable }}
+        - mountPath: /usr/share/elasticsearch/plugins/search-guard-6/sgconfig/
+          name: searchguard-config
+        {{- end }}
       volumes:
         {{- if .Values.common.plugins }}
         - name: configdir
@@ -158,6 +164,11 @@ spec:
         - configMap:
             name: {{ template "fullname" . }}-config
           name: config
+        {{- if .Values.searchguard.enable }}
+        - configMap:
+            name: {{ template "fullname" . }}-searchguard-config
+          name: searchguard-config
+        {{- end }}
   volumeClaimTemplates:
   - metadata:
       name: storage

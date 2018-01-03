@@ -100,8 +100,11 @@ master:
       memory: 256Mi
 
 curator:
-  enabled: true
+  enable: true
   schedule: "0 1 * * *"
+  image: quay.io/lalamove/elasticsearch-curator
+  imageTag: "5.4.0"
+  imagePullPolicy: "IfNotPresent"
   # Allows modification of the default age-based filter. If you require more
   # sophisticated filtering, modify the action file specified in
   # templates/es-curator-config.yaml.
@@ -121,5 +124,19 @@ tls:
   enable: false
   clusterDomain: cluster.local
   image: quay.io/lalamove/certificate-init-container
-  tag: v0.0.4
-  pullPolicy: "IfNotPresent"
+  imageTag: v0.2.0
+  imagePullPolicy: "IfNotPresent"
+
+searchguard:
+  enable: false
+  plugin: com.floragunn:search-guard-6:6.1.0-20.0
+  enterprise_modules: false
+  kibana_user: kibana
+  admins:
+  users:
+  init:
+    image: quay.io/lalamove/sgadmin
+    imageTag: v6.1.0-20.0
+    imagePullPolicy: "IfNotPresent"
+    restartPolicy: Never
+    activeDeadlineSeconds: 600

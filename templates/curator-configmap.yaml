@@ -1,9 +1,10 @@
-{{- if .Values.curator.enabled }}
+{{- if .Values.curator.enable }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ template "fullname" . }}-curator-config
   labels:
+    component: curator
     app: {{ template "fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
@@ -43,21 +44,29 @@ data:
     # not a Python "NoneType"
     client:
       hosts:
-        - {{ template "fullname" . }}
+        - {{ template "fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.tls.clusterDomain }}
       port: {{ .Values.service.httpPort }}
       url_prefix:
+      {{- if .Values.tls.enable }}
+      use_ssl: True
+      certificate: /tls/ca.crt
+      client_cert: /tls/tls.crt
+      client_key: /tls/tls.key
+      ssl_no_validate: False
+      {{- else }}
       use_ssl: False
       certificate:
       client_cert:
       client_key:
       ssl_no_validate: False
+      {{- end }}
       http_auth:
       timeout: 30
       master_only: False
 
     logging:
-      loglevel: INFO
+      loglevel: DEBUG
       logfile:
-      logformat: default
-      blacklist: ['elasticsearch', 'urllib3']
+      logformat: json
+      blacklist: [] #['elasticsearch', 'urllib3']
 {{- end }}

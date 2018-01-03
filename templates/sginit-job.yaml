@@ -1,0 +1,91 @@
+{{- if .Values.searchguard.enable }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "fullname" . }}-sginit
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  activeDeadlineSeconds: {{ default 600 .Values.searchguard.init.activeDeadlineSeconds }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
+    spec:
+      serviceAccountName: "{{ template "fullname" . }}-sginit"
+      subdomain: "{{ template "fullname" . }}"
+      initContainers:
+        - name: generate-tls-pair
+          image: "{{ .Values.tls.image }}:{{ .Values.tls.imageTag }}"
+          imagePullPolicy: {{ .Values.tls.imagePullPolicy }}
+          env:
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: SUBDOMAIN
+            value: {{ template "fullname" . }}
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          args:
+          - "-namespace=$(NAMESPACE)"
+          - "-pod-ip=$(POD_IP)"
+          - "-pod-name=$(POD_NAME)"
+          - "-hostname=admin"
+          - "-subdomain=$(SUBDOMAIN)"
+          - "-organizational-units=sgadmin"
+          - "-organizations=logging"
+          - "-headless-name-as-cn"
+          - "-pkcs8"
+          - "-labels=component={{ template "fullname" . }}"
+          - "-secret-name={{ template "fullname" . }}-sg-admin-credentials"
+        - name: wait-for-es
+          image: alpine
+          imagePullPolicy: IfNotPresent
+          command:
+            - "sh"
+            - "-c"
+            - "until nc -w 1 -z {{ template "fullname" . }} 9300; do echo waiting for elasticsearch to come up; sleep 2; done"
+      containers:
+      - name: sginit
+        image: "{{ .Values.searchguard.init.image }}:{{ .Values.searchguard.init.imageTag }}"
+        args:
+          - "--configdir"
+          - "/sgconfig/"
+          - "-cacert"
+          - "/tls/ca.crt"
+          - "--clustername"
+          - "{{ .Values.common.env.CLUSTER_NAME }}"
+          - "--hostname"
+          - "{{ template "fullname" . }}-discovery.{{ .Release.Namespace }}.svc.{{ .Values.tls.clusterDomain }}"
+          - "-cert"
+          - "/tls/tls.crt"
+          - "-key"
+          - "/tls/tls.key"
+        volumeMounts:
+          - name: tls
+            mountPath: /tls
+          - name: searchguard-config
+            mountPath: /sgconfig
+      volumes:
+        - name: tls
+          secret:
+            secretName: {{ template "fullname" . }}-sg-admin-credentials
+            defaultMode: 0400
+        - name: searchguard-config
+          configMap:
+            name: {{ template "fullname" . }}-searchguard-config
+      restartPolicy: {{ .Values.searchguard.init.restartPolicy }}
+{{- end }}
