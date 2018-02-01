@@ -49,6 +49,8 @@ spec:
                   component: {{ template "fullname" . }}
                   role: client
       {{- end }}
+      resources:
+{{ toYaml .Values.client.resources | indent 6 }}
       initContainers:
 {{ include "init-containers" . | indent 6 }}
       containers:
