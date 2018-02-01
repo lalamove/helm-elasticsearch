@@ -51,6 +51,8 @@ spec:
                   component: {{ template "fullname" . }}
                   role: master
       {{- end }}
+      resources:
+{{ toYaml .Values.master.resources | indent 6 }}
       initContainers:
 {{ include "init-containers" . | indent 6 }}
       containers:
