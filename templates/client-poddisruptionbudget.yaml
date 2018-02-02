@@ -1,0 +1,17 @@
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ template "fullname" . }}-client
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    component: {{ template "fullname" . }}
+    role: client
+spec:
+  minAvailable: 50%
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}
+      role: client
