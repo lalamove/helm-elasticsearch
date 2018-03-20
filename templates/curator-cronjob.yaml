@@ -55,6 +55,13 @@ spec:
               image: "{{ .Values.curator.image }}:{{ .Values.curator.imageTag }}"
               imagePullPolicy: "{{ .Values.curator.imagePullPolicy }}"
               args: ["--config", "/etc/config/config.yml", "/etc/config/action_file.yml"]
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 256Mi
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
               volumeMounts:
                 - name: config-volume
                   mountPath: /etc/config

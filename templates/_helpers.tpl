@@ -16,7 +16,7 @@ We truncate at 53 chars (63 - len("-discovery")) because some Kubernetes name fi
 {{- end -}}
 
 {{/*
-Return the appropriate apiVersion for Curactor cron job.
+Return the appropriate apiVersion for the Curator cron job.
 */}}
 {{- define "curator.cronJob.apiVersion" -}}
 {{- if ge .Capabilities.KubeVersion.Minor "8" -}}
@@ -33,6 +33,13 @@ init container template
   image: busybox
   imagePullPolicy: IfNotPresent
   command: ["sysctl", "-w", "vm.max_map_count=262144"]
+  resources:
+    limits:
+      cpu: "500m"
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
   securityContext:
     privileged: true
 {{- if $.Values.tls.enable }}
@@ -72,6 +79,13 @@ init container template
   image: busybox
   imagePullPolicy: IfNotPresent
   command: ["cp", "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt", "/tls/ca.crt"]
+  resources:
+      limits:
+        cpu: "500m"
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
   volumeMounts:
     - name: tls
       mountPath: /tls
@@ -85,6 +99,13 @@ init container template
       add:
         - IPC_LOCK
         - SYS_RESOURCE
+  resources:
+    limits:
+      cpu: "500m"
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
   command:
     - "sh"
     - "-c"
@@ -92,6 +113,13 @@ init container template
   env:
   - name: NODE_NAME
     value: es-plugin-install
+  resources:
+    limits:
+      cpu: "500m"
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
   volumeMounts:
   - mountPath: /storage/
     name: storage
@@ -108,6 +136,13 @@ init container template
 - name: permissions
   image: busybox
   command: ["sh", "-c", "chmod 400 /usr/share/elasticsearch/config/tls/*; chown -R 1000: /usr/share/elasticsearch/ /storage/; true"]
+  resources:
+    limits:
+      cpu: "500m"
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
   volumeMounts:
   - mountPath: /storage
     name: storage

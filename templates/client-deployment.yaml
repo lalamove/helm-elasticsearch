@@ -49,8 +49,6 @@ spec:
                   component: {{ template "fullname" . }}
                   role: client
       {{- end }}
-      resources:
-{{ toYaml .Values.client.resources | indent 6 }}
       initContainers:
 {{ include "init-containers" . | indent 6 }}
       containers:
@@ -93,6 +91,8 @@ spec:
         - name: {{ $key | upper | replace "-" "_" }}
           value: {{ $value | quote }}
         {{- end }}
+        resources:
+{{ toYaml .Values.client.resources | indent 10 }}
         ports:
         - containerPort: 9200
           name: http
