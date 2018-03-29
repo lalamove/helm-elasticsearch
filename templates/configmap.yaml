@@ -37,7 +37,7 @@ data:
 
   elasticsearch.yml: |-
     cluster:
-      name: ${CLUSTER_NAME:elasticsearch}
+      name: {{ .Release.Name }}
 
     node:
       master: ${NODE_MASTER:true}
