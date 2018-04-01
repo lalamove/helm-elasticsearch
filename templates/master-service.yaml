@@ -11,7 +11,7 @@ metadata:
     role: master
 spec:
   selector:
-    component: {{ template "fullname" . }}
+    component: {{ template "fullname" . }}-master
     role: master
   ports:
   - name: transport
