@@ -7,14 +7,16 @@ metadata:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
-    component: {{ template "fullname" . }}
+    component: {{ template "fullname" . }}-client
     role: client
 spec:
   replicas: {{ .Values.client.replicas }}
   template:
     metadata:
       labels:
-        component: {{ template "fullname" . }}
+        release: "{{ .Release.Name }}"
+        app: {{ template "fullname" . }}
+        component: {{ template "fullname" . }}-client
         role: client
         {{- if .Values.client.labels }}
 {{ toYaml .Values.client.labels | indent 8 }}

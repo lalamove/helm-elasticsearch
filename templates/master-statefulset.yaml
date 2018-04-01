@@ -16,7 +16,9 @@ spec:
   template:
     metadata:
       labels:
-        component: {{ template "fullname" . }}
+        release: "{{ .Release.Name }}"
+        app: {{ template "fullname" . }}
+        component: {{ template "fullname" . }}-master
         role: master
         {{- if .Values.master.labels }}
 {{ toYaml .Values.master.labels | indent 8 }}
