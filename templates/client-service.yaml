@@ -12,7 +12,7 @@ metadata:
 spec:
   type: {{ .Values.common.serviceType }}
   selector:
-    component: {{ template "fullname" . }}
+    component: {{ template "fullname" . }}-client
     role: client
   ports:
   - name: http

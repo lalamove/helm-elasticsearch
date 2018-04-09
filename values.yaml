@@ -16,13 +16,12 @@ common:
   # - com.floragunn:search-guard-ssl:6.0.0-24.beta1.1
 
   env:
-    CLUSTER_NAME: "elasticsearch"
     # Uncomment this if you get the "No up-and-running site-local (private)
     # addresses" error.
     # NETWORK_HOST: "_eth0_"
     # The minimum number of masters that will be able to form a quorum. This
     # should be (#masters / 2) + 1. Default is 2.
-    NUMBER_OF_MASTERS: "1"
+    NUMBER_OF_MASTERS: "2"
 
 # Client/ingest nodes can execute pre-processing pipelines, composed of
 # one or more ingest processors. Depending on the type of operations performed

@@ -37,7 +37,7 @@ data:
 
   elasticsearch.yml: |-
     cluster:
-      name: ${CLUSTER_NAME:elasticsearch}
+      name: {{ .Release.Name }}
 
     node:
       master: ${NODE_MASTER:true}
@@ -61,6 +61,12 @@ data:
       cors:
         enabled: ${HTTP_CORS_ENABLE:false}
         allow-origin: ${HTTP_CORS_ALLOW_ORIGIN:"*"}
+
+    indices:
+      memory.index_buffer_size: 30%
+
+    index:
+      refresh_interval: 30s
 
     discovery:
       zen:

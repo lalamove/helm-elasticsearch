@@ -1,3 +1,4 @@
+{{- if .Values.searchguard.enable }}
 {{- if .Values.rbac.create -}}
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
@@ -20,3 +21,5 @@ rules:
       - update
       - get
 {{- end -}}
+{{- end -}}
+
