@@ -19,7 +19,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 Return the appropriate apiVersion for the Curator cron job.
 */}}
 {{- define "curator.cronJob.apiVersion" -}}
-{{- if ge .Capabilities.KubeVersion.Minor "8" -}}
+{{- if ge .Capabilities.KubeVersion.Minor "10" -}}
 "batch/v1beta1"
 {{- else -}}
 "batch/v2alpha1"

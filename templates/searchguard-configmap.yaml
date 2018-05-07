@@ -213,6 +213,9 @@ data:
         'logstash-*':
           '*':
             - "indices:data/read/field_caps*"
+        'k8slogs-*':
+          '*':
+            - "indices:data/read/field_caps*"
         '?kibana':
           '*':
             - INDICES_ALL
@@ -229,6 +232,9 @@ data:
         'logstash-*':
           '*':
             - READ
+        'k8slogs-*':
+          '*':
+            - READ
 
     # For logstash and beats
     sg_logwrite:
@@ -240,6 +246,10 @@ data:
         - "indices:admin/template/put"
       indices:
         'logstash-*':
+          '*':
+            - WRITE
+            - CREATE_INDEX
+        'k8slogs-*':
           '*':
             - WRITE
             - CREATE_INDEX
@@ -259,9 +269,19 @@ data:
       cluster:
         - CLUSTER_MONITOR
         - CLUSTER_COMPOSITE_OPS
-      indicies:
+      indices:
+        '*':
+          '*':
+            - READ
+            - INDICES_MONITOR
+        'k8slogs-*':
+          '*':
+            - READ
+            - INDICES_MONITOR
+            - DELETE
         'logstash-*':
           '*':
+            - READ
             - INDICES_MONITOR
             - DELETE
 
@@ -297,6 +317,7 @@ data:
     sg_all_access:
       readonly: true
       users:
+        - curator
 {{ toYaml .Values.searchguard.admins | indent 8 }}
       backendroles:
         - admin

@@ -11,6 +11,8 @@ metadata:
     role: client
 spec:
   replicas: {{ .Values.client.replicas }}
+  strategy:
+    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -120,8 +122,10 @@ spec:
             {{- end }}
         {{- end }}
           initialDelaySeconds: 20
-          timeoutSeconds: 5
-          failureThreshold: 20
+          timeoutSeconds: 10
+          failureThreshold: 30
+        resources:
+{{ toYaml .Values.client.resources | indent 10 }}
         volumeMounts:
         {{- if .Values.common.plugins }}
         - mountPath: /usr/share/elasticsearch/config/

@@ -12,6 +12,8 @@ metadata:
 spec:
   serviceName: {{ template "fullname" . }}-data
   replicas: {{ .Values.data.replicas }}
+  updateStrategy:
+    type: RollingUpdate
   podManagementPolicy: Parallel
   template:
     metadata:
@@ -120,13 +122,15 @@ spec:
             port: transport
           {{- end }}
           initialDelaySeconds: 20
-          periodSeconds: 5
-          failureThreshold: 20
+          periodSeconds: 10
+          failureThreshold: 30
         livenessProbe:
           tcpSocket:
             port: transport
           initialDelaySeconds: 60
           periodSeconds: 10
+        resources:
+{{ toYaml .Values.data.resources | indent 10 }}
         volumeMounts:
         {{- if .Values.common.plugins }}
         - mountPath: /usr/share/elasticsearch/config/
