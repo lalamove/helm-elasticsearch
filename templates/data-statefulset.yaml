@@ -15,12 +15,16 @@ spec:
   updateStrategy:
     type: RollingUpdate
   podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      component: {{ template "fullname" . }}
+      role: data
   template:
     metadata:
       labels:
         release: "{{ .Release.Name }}"
         app: {{ template "fullname" . }}
-        component: {{ template "fullname" . }}-data
+        component: {{ template "fullname" . }}
         role: data
         {{- if .Values.data.labels }}
 {{ toYaml .Values.data.labels | indent 8 }}
@@ -43,11 +47,26 @@ spec:
                 matchLabels:
                   component: {{ template "fullname" . }}
                   role: data
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+            - topologyKey: "failure-domain.beta.kubernetes.io/zone"
+              labelSelector:
+                matchLabels:
+                  component: {{ template "fullname" . }}
+                  role: data
       {{- else if eq .Values.data.antiAffinity "soft" }}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 1
+            podAffinityTerm:
+              topologyKey: "failure-domain.beta.kubernetes.io/zone"
+              labelSelector:
+                matchLabels:
+                  component: {{ template "fullname" . }}
+                  role: data
+          - weight: 2
             podAffinityTerm:
               topologyKey: "kubernetes.io/hostname"
               labelSelector:

@@ -13,12 +13,16 @@ spec:
   replicas: {{ .Values.client.replicas }}
   strategy:
     type: RollingUpdate
+  selector:
+    matchLabels:
+      component: {{ template "fullname" . }}
+      role: client
   template:
     metadata:
       labels:
         release: "{{ .Release.Name }}"
         app: {{ template "fullname" . }}
-        component: {{ template "fullname" . }}-client
+        component: {{ template "fullname" . }}
         role: client
         {{- if .Values.client.labels }}
 {{ toYaml .Values.client.labels | indent 8 }}
@@ -35,6 +39,14 @@ spec:
       {{- if eq .Values.client.antiAffinity "hard" }}
       affinity:
         podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: "failure-domain.beta.kubernetes.io/zone"
+              labelSelector:
+                matchLabels:
+                  component: {{ template "fullname" . }}
+                  role: client
           requiredDuringSchedulingIgnoredDuringExecution:
             - topologyKey: "kubernetes.io/hostname"
               labelSelector:
@@ -46,6 +58,13 @@ spec:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 1
+            podAffinityTerm:
+              topologyKey: "failure-domain.beta.kubernetes.io/zone"
+              labelSelector:
+                matchLabels:
+                  component: {{ template "fullname" . }}
+                  role: client
+          - weight: 2
             podAffinityTerm:
               topologyKey: "kubernetes.io/hostname"
               labelSelector:
