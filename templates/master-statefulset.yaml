@@ -121,14 +121,26 @@ spec:
           tcpSocket:
             port: transport
           {{- end }}
+        {{- if .Values.minikube }}
           initialDelaySeconds: 20
           periodSeconds: 10
+          failureThreshold: 90
+        {{- else }}
+          initialDelaySeconds: 50
+          periodSeconds: 10
           failureThreshold: 30
+        {{- end }}
         livenessProbe:
           tcpSocket:
             port: transport
+        {{- if .Values.minikube }}
           initialDelaySeconds: 60
           periodSeconds: 10
+          failureThreshold: 90
+        {{- else }}
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        {{- end }}
         resources:
 {{ toYaml .Values.master.resources | indent 10 }}
         volumeMounts:
