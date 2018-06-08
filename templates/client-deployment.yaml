@@ -140,9 +140,15 @@ spec:
             scheme: HTTPS
             {{- end }}
         {{- end }}
+        {{- if .Values.minikube }}
+          initialDelaySeconds: 60
+          timeoutSeconds: 10
+          failureThreshold: 50
+        {{- else }}
           initialDelaySeconds: 20
           timeoutSeconds: 10
           failureThreshold: 30
+        {{- end }}
         resources:
 {{ toYaml .Values.client.resources | indent 10 }}
         volumeMounts:
