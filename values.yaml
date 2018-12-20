@@ -136,7 +136,7 @@ searchguard:
   users:
   init:
     image: quay.io/lalamove/sgadmin
-    imageTag: v6.2.3-22.0
+    imageTag: v6.4.0-23.0
     imagePullPolicy: "IfNotPresent"
     restartPolicy: Never
     activeDeadlineSeconds: 600

@@ -140,7 +140,7 @@ spec:
           tcpSocket:
             port: transport
           {{- end }}
-          initialDelaySeconds: 20
+          initialDelaySeconds: 50
           periodSeconds: 10
           failureThreshold: 30
         livenessProbe:

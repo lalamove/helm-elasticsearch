@@ -15,14 +15,14 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
-      component: {{ template "fullname" . }}
+      component: {{ template "fullname" . }}-client
       role: client
   template:
     metadata:
       labels:
         release: "{{ .Release.Name }}"
         app: {{ template "fullname" . }}
-        component: {{ template "fullname" . }}
+        component: {{ template "fullname" . }}-client
         role: client
         {{- if .Values.client.labels }}
 {{ toYaml .Values.client.labels | indent 8 }}

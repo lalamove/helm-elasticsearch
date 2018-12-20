@@ -7,12 +7,12 @@ metadata:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
-    component: {{ template "fullname" . }}
+    component: {{ template "fullname" . }}-client
     role: client
 spec:
   type: {{ .Values.common.serviceType }}
   selector:
-    component: {{ template "fullname" . }}
+    component: {{ template "fullname" . }}-client
     role: client
   ports:
   - name: http
