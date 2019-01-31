@@ -213,6 +213,9 @@ data:
         'logstash-*':
           '*':
             - "indices:data/read/field_caps*"
+        'tracing-*':
+          '*':
+            - "indices:data/read/field_caps*"
         'k8slogs-*':
           '*':
             - "indices:data/read/field_caps*"
@@ -226,9 +229,34 @@ data:
           '*':
             - INDICES_ALL
 
+    sg_spanwrite:
+      readonly: true
+      cluster:
+        - CLUSTER_MONITOR
+        - CLUSTER_COMPOSITE_OPS
+        - "indices:admin/template/get"
+        - "indices:admin/template/put"
+      indices:
+        'jaeger-*':
+          '*':
+            - WRITE
+            - CREATE_INDEX
+
+    sg_spanread:
+      cluster:
+        - CLUSTER_MONITOR
+      readonly: true
+      indices:
+        'jaeger-*':
+          '*':
+            - READ
+
     sg_logreader:
       readonly: true
       indices:
+        'jaeger-*':
+          '*':
+            - READ
         'logstash-*':
           '*':
             - READ
@@ -274,6 +302,11 @@ data:
           '*':
             - READ
             - INDICES_MONITOR
+        'tracing-*':
+          '*':
+            - READ
+            - INDICES_MONITOR
+            - DELETE
         'k8slogs-*':
           '*':
             - READ
@@ -314,6 +347,14 @@ data:
       readonly: true
       users:
         - prometheus
+    sg_spanread:
+      readonly: true
+      users:
+        - span-read
+    sg_spanwrite:
+      readonly: true
+      users:
+        - span-write
     sg_all_access:
       readonly: true
       users:
