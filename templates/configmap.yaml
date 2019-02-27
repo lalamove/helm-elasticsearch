@@ -92,8 +92,8 @@ data:
           clientauth_mode: REQUIRE
           enabled: true
           enabled_protocols:
+          - "TLSv1.3"
           - "TLSv1.2"
-          - "TLSv1.1"
           pemkey_filepath: tls/tls.key
           pemcert_filepath: tls/tls.crt
           pemtrustedcas_filepath: tls/ca.crt

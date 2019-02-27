@@ -29,6 +29,7 @@ Return the appropriate apiVersion for the Curator cron job.
 init container template
 */}}
 {{- define "init-containers" -}}
+{{- if not $.Values.microk8s }}
 - name: init-sysctl
   image: busybox
   imagePullPolicy: IfNotPresent
@@ -42,6 +43,7 @@ init container template
       memory: 256Mi
   securityContext:
     privileged: true
+{{- end }}
 {{- if $.Values.tls.enable }}
 - name: generate-tls-pair
   image: "{{ .Values.tls.image }}:{{ .Values.tls.imageTag }}"

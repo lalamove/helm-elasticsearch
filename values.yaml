@@ -1,7 +1,8 @@
+microk8s: false
 common:
   image:
     repository: blacktop/elasticsearch
-    tag: "6.2.3"
+    tag: "6.6.1"
     pullPolicy: IfNotPresent
 
   # Defines the service type for all outward-facing (non-discovery) services.
@@ -129,14 +130,14 @@ tls:
 searchguard:
   # If you enable searchguard, you must enable TLS as well, and pay close attention to the instructions after install
   enable: false
-  plugin: com.floragunn:search-guard-6:6.2.3-22.0
+  plugin: com.floragunn:search-guard-6:6.6.1-24.1
   enterprise_modules: false
   kibana_user: kibana
   admins:
   users:
   init:
     image: quay.io/lalamove/sgadmin
-    imageTag: v6.4.0-23.0
+    imageTag: v6.6.1-24.1
     imagePullPolicy: "IfNotPresent"
     restartPolicy: Never
     activeDeadlineSeconds: 600

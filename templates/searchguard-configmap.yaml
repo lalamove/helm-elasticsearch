@@ -198,9 +198,18 @@ data:
             - INDEX
             - READ
             - DELETE
+        '?tasks':
+          '*':
+            - INDICES_ALL
+        '?management-beats':
+          '*':
+            - INDICES_ALL
         '*':
           '*':
             - "indices:data/read/field_caps"
+            - indices:data/read/xpack/rollup*
+            - indices:admin/mappings/get*
+            - indices:admin/get<Paste>
 
     # For the kibana server
     sg_kibana_server:
@@ -208,7 +217,10 @@ data:
       cluster:
         - CLUSTER_MONITOR
         - CLUSTER_COMPOSITE_OPS
-        - "indices:admin/template/put"
+        - CLUSTER_COMPOSITE_OPS
+        - cluster:admin/xpack/monitoring*
+        - indices:admin/template*
+        - indices:data/read/scroll*
       indices:
         'logstash-*':
           '*':
@@ -222,12 +234,27 @@ data:
         '?kibana':
           '*':
             - INDICES_ALL
+        '?kibana-6':
+          '*':
+            - INDICES_ALL
+        '?kibana_*':
+          '*':
+            - INDICES_ALL
         '?reporting*':
           '*':
             - INDICES_ALL
         '?monitoring*':
           '*':
             - INDICES_ALL
+        '?tasks':
+          '*':
+            - INDICES_ALL
+        '?management-beats*':
+          '*':
+            - INDICES_ALL
+        '*':
+          '*':
+            - "indices:admin/aliases*"
 
     sg_spanwrite:
       readonly: true
@@ -290,7 +317,10 @@ data:
       readonly: true
       cluster:
         - CLUSTER_MONITOR
-        - INDICES_MONITOR
+      indices:
+        '*':
+          '*':
+            - INDICES_MONITOR
 
     sg_curator:
       readonly: true
