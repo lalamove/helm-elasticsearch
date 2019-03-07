@@ -95,7 +95,7 @@ spec:
         - name: DISCOVERY_SERVICE
           value: {{ template "fullname" . }}-discovery.{{ .Release.Namespace }}.svc.{{ .Values.tls.clusterDomain }}
         - name: ES_JAVA_OPTS
-          value: "-Djava.net.preferIPv4Stack=true -Xms{{ .Values.client.heapSize }} -Xmx{{ .Values.client.heapSize }}"
+          value: "-XX:ParallelGCThreads={{ .Values.data.processors | mul 4 }} -Djava.net.preferIPv4Stack=true -Xms{{ .Values.client.heapSize }} -Xmx{{ .Values.client.heapSize }}"
         - name: NODE_DATA
           value: "false"
         - name: NODE_MASTER

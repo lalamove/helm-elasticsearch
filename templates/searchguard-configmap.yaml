@@ -221,6 +221,7 @@ data:
         - cluster:admin/xpack/monitoring*
         - indices:admin/template*
         - indices:data/read/scroll*
+        - indices:data/write/reindex
       indices:
         'logstash-*':
           '*':
