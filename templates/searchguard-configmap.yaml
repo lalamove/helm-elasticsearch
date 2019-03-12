@@ -360,6 +360,22 @@ data:
             - "indices:data/write/index"
             - "indices:admin/create"
 
+    # Support Elastalert
+    sg_elastalert:
+      cluster:
+        - CLUSTER_COMPOSITE_OPS_RO
+        - CLUSTER_MONITOR
+        - "indices:data/write/bulk*"
+        - "indices:data/write/index"
+      indices:
+        '*':
+          '*':
+            - READ
+            - INDEX
+        'elastalert*':
+          '*':
+            - '*'
+
     # Allows each user to access own named index
     sg_own_index:
       cluster:
@@ -416,6 +432,9 @@ data:
       readonly: true
       backendroles:
         - snapshotrestore
+    sg_elastalert:
+      users:
+        - elastalert-readonly
     sg_own_index:
       users:
         - '*'
