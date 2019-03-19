@@ -129,7 +129,7 @@ spec:
           initialDelaySeconds: 60
           periodSeconds: 10
         readinessProbe:
-        {{- if .Values.searchguard.enable }}
+        {{- if .Values.opendistro_security.enable }}
           tcpSocket:
             port: http
         {{- else }}
@@ -168,9 +168,9 @@ spec:
         - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
           name: config
           subPath: elasticsearch.yml
-        {{- if .Values.searchguard.enable }}
-        - mountPath: /usr/share/elasticsearch/plugins/search-guard-6/sgconfig/
-          name: searchguard-config
+        {{- if .Values.opendistro_security.enable }}
+        - mountPath: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/
+          name: security-config
         {{- end }}
       volumes:
         {{- if .Values.common.plugins }}
@@ -189,8 +189,8 @@ spec:
         - emptyDir:
             medium: ""
           name: storage
-        {{- if .Values.searchguard.enable }}
+        {{- if .Values.opendistro_security.enable }}
         - configMap:
-            name: {{ template "fullname" . }}-searchguard-config
-          name: searchguard-config
+            name: {{ template "fullname" . }}-security-config
+          name: security-config
         {{- end }}

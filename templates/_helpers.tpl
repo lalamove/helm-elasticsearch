@@ -111,7 +111,7 @@ init container template
   command:
     - "sh"
     - "-c"
-    - "{{ if .Values.searchguard.enable }}elasticsearch-plugin install {{ .Values.searchguard.plugin }};{{ end }}{{- range .Values.common.plugins }}elasticsearch-plugin install {{ . }};{{- end }} true"
+    - "{{ if .Values.opendistro_security.enable }}elasticsearch-plugin install {{ .Values.opendistro_security.plugin }};{{ end }}{{- range .Values.common.plugins }}elasticsearch-plugin install {{ . }};{{- end }} true"
   env:
   - name: NODE_NAME
     value: es-plugin-install

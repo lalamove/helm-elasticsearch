@@ -1,15 +1,15 @@
-{{- if .Values.searchguard.enable }}
+{{- if .Values.opendistro_security.enable }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ template "fullname" . }}-sginit
+  name: {{ template "fullname" . }}-securityinit
   labels:
     app: {{ template "fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
 spec:
-  activeDeadlineSeconds: {{ default 600 .Values.searchguard.init.activeDeadlineSeconds }}
+  activeDeadlineSeconds: {{ default 600 .Values.opendistro_security.init.activeDeadlineSeconds }}
   template:
     metadata:
       labels:
@@ -18,7 +18,7 @@ spec:
         release: "{{ .Release.Name }}"
         heritage: "{{ .Release.Service }}"
     spec:
-      serviceAccountName: "{{ template "fullname" . }}-sginit"
+      serviceAccountName: "{{ template "fullname" . }}-securityinit"
       subdomain: "{{ template "fullname" . }}"
       initContainers:
         - name: generate-tls-pair
@@ -45,12 +45,12 @@ spec:
           - "-pod-name=$(POD_NAME)"
           - "-hostname=admin"
           - "-subdomain=$(SUBDOMAIN)"
-          - "-organizational-units=sgadmin"
+          - "-organizational-units=securityadmin"
           - "-organizations=logging"
           - "-headless-name-as-cn"
           - "-pkcs8"
           - "-labels=component={{ template "fullname" . }}"
-          - "-secret-name={{ template "fullname" . }}-sg-admin-credentials"
+          - "-secret-name={{ template "fullname" . }}-securityadmin-credentials"
         - name: wait-for-es
           image: alpine
           imagePullPolicy: IfNotPresent
@@ -59,11 +59,12 @@ spec:
             - "-c"
             - "until nc -w 1 -z {{ template "fullname" . }} 9300; do echo waiting for elasticsearch to come up; sleep 2; done"
       containers:
-      - name: sginit
-        image: "{{ .Values.searchguard.init.image }}:{{ .Values.searchguard.init.imageTag }}"
+      - name: securityinit
+        image: "{{ .Values.opendistro_security.init.image }}:{{ .Values.opendistro_security.init.imageTag }}"
+        imagePullPolicy: "Always"
         args:
           - "--configdir"
-          - "/sgconfig/"
+          - "/securityconfig/"
           - "-cacert"
           - "/tls/ca.crt"
           - "--clustername"
@@ -77,15 +78,15 @@ spec:
         volumeMounts:
           - name: tls
             mountPath: /tls
-          - name: searchguard-config
-            mountPath: /sgconfig
+          - name: security-config
+            mountPath: /securityconfig
       volumes:
         - name: tls
           secret:
-            secretName: {{ template "fullname" . }}-sg-admin-credentials
+            secretName: {{ template "fullname" . }}-securityadmin-credentials
             defaultMode: 0400
-        - name: searchguard-config
+        - name: security-config
           configMap:
-            name: {{ template "fullname" . }}-searchguard-config
-      restartPolicy: {{ .Values.searchguard.init.restartPolicy }}
+            name: {{ template "fullname" . }}-security-config
+      restartPolicy: {{ .Values.opendistro_security.init.restartPolicy }}
 {{- end }}

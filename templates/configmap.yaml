@@ -10,9 +10,6 @@ metadata:
 data:
   jvm.options: |-
     ## GC configuration
-    -XX:+UseConcMarkSweepGC
-    -XX:CMSInitiatingOccupancyFraction=75
-    -XX:+UseCMSInitiatingOccupancyOnly
     -XX:+AlwaysPreTouch
     -server
     -Xss1m
@@ -76,16 +73,16 @@ data:
     # see https://github.com/elastic/elasticsearch-definitive-guide/pull/679
     processors: ${PROCESSORS:}
     {{- if .Values.tls.enable }}
-    searchguard:
-      {{- if .Values.searchguard.enable }}
-      enterprise_modules_enabled: {{ .Values.searchguard.enterprise_modules }}
+    opendistro_security:
+      {{- if .Values.opendistro_security.enable }}
+      advanced_modules_enabled: {{ .Values.opendistro_security.advanced_modules_enabled }}
       restapi:
-        roles_enabled: ["sg_all_access"]
+        roles_enabled: ["all_access"]
       nodes_dn:
         - "CN=*.{{ template "fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.tls.clusterDomain }}"
       authcz:
         admin_dn:
-          - "CN=admin.{{ template "fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.tls.clusterDomain }},OU=sgadmin,O=logging"
+          - "CN=admin.{{ template "fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.tls.clusterDomain }},OU=securityadmin,O=logging"
       {{- end }}
       ssl:
         http:

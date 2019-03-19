@@ -127,16 +127,15 @@ tls:
   imageTag: v0.2.0
   imagePullPolicy: "IfNotPresent"
 
-searchguard:
-  # If you enable searchguard, you must enable TLS as well, and pay close attention to the instructions after install
+opendistro_security:
+  # If you enable opendistro_security, you must enable TLS as well, and pay close attention to the instructions after install
   enable: false
-  plugin: com.floragunn:search-guard-6:6.6.1-24.1
-  enterprise_modules: false
+  advanced_modules_enabled: false
   kibana_user: kibana
   admins:
   users:
   init:
-    image: quay.io/lalamove/sgadmin
+    image: quay.io/lalamove/securityadmin
     imageTag: v6.6.1-24.1
     imagePullPolicy: "IfNotPresent"
     restartPolicy: Never

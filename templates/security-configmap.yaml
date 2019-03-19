@@ -1,15 +1,15 @@
-{{- if .Values.searchguard.enable }}
+{{- if .Values.opendistro_security.enable }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "fullname" . }}-searchguard-config
+  name: {{ template "fullname" . }}-security-config
   labels:
     app: {{ template "fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
 data:
-  sg_action_groups.yml: |-
+  action_groups.yml: |-
     UNLIMITED:
       readonly: true
       permissions:
@@ -112,12 +112,12 @@ data:
       permissions:
         - "cluster:admin/snapshot/*"
         - "cluster:admin/repository/*"
-  sg_config.yml: |-
-    searchguard:
+  config.yml: |-
+    opendistro_security:
       dynamic:
         kibana:
           multitenancy_enabled: false
-          server_username: {{ .Values.searchguard.kibana_user }}
+          server_username: {{ .Values.opendistro_security.kibana_user }}
           index: '.kibana'
           do_not_fail_on_forbidden: false
         http:
@@ -152,9 +152,9 @@ data:
               challenge: false
             authentication_backend:
               type: noop
-  sg_roles.yml: |-
-    # Allows everything, but no changes to searchguard configuration index
-    sg_all_access:
+  roles.yml: |-
+    # Allows everything, but no changes to opendistro_security configuration index
+    all_access:
       readonly: true
       cluster:
         - UNLIMITED
@@ -166,7 +166,7 @@ data:
         admin_tenant: RW
 
     # Read all, but no write permissions
-    sg_readall:
+    readall:
       readonly: true
       cluster:
         - CLUSTER_COMPOSITE_OPS_RO
@@ -176,7 +176,7 @@ data:
             - READ
 
     # Read all and monitor, but no write permissions
-    sg_readall_and_monitor:
+    readall_and_monitor:
       cluster:
         - CLUSTER_MONITOR
         - CLUSTER_COMPOSITE_OPS_RO
@@ -186,7 +186,7 @@ data:
             - READ
 
     # For users which use kibana, access to indices must be granted separately
-    sg_kibana_user:
+    kibana_user:
       readonly: true
       cluster:
         - MONITOR
@@ -212,7 +212,7 @@ data:
             - indices:admin/get<Paste>
 
     # For the kibana server
-    sg_kibana_server:
+    kibana_server:
       readonly: true
       cluster:
         - CLUSTER_MONITOR
@@ -257,7 +257,7 @@ data:
           '*':
             - "indices:admin/aliases*"
 
-    sg_spanwrite:
+    spanwrite:
       readonly: true
       cluster:
         - CLUSTER_MONITOR
@@ -270,7 +270,7 @@ data:
             - WRITE
             - CREATE_INDEX
 
-    sg_spanread:
+    spanread:
       cluster:
         - CLUSTER_MONITOR
       readonly: true
@@ -279,7 +279,7 @@ data:
           '*':
             - READ
 
-    sg_logreader:
+    logreader:
       readonly: true
       indices:
         'jaeger-*':
@@ -293,7 +293,7 @@ data:
             - READ
 
     # For logstash and beats
-    sg_logwrite:
+    logwrite:
       readonly: true
       cluster:
         - CLUSTER_MONITOR
@@ -314,7 +314,7 @@ data:
             - WRITE
             - CREATE_INDEX
 
-    sg_prometheus:
+    prometheus:
       readonly: true
       cluster:
         - CLUSTER_MONITOR
@@ -323,7 +323,7 @@ data:
           '*':
             - INDICES_MONITOR
 
-    sg_curator:
+    curator:
       readonly: true
       cluster:
         - CLUSTER_MONITOR
@@ -350,7 +350,7 @@ data:
             - DELETE
 
     # Allows adding and modifying repositories and creating and restoring snapshots
-    sg_manage_snapshots:
+    manage_snapshots:
       readonly: true
       cluster:
         - MANAGE_SNAPSHOTS
@@ -377,7 +377,7 @@ data:
             - '*'
 
     # Allows each user to access own named index
-    sg_own_index:
+    own_index:
       cluster:
         - CLUSTER_COMPOSITE_OPS
       indices:
@@ -385,50 +385,50 @@ data:
           '*':
             - INDICES_ALL
 
-  sg_roles_mapping.yml: |-
-    sg_curator:
+  roles_mapping.yml: |-
+    curator:
       readonly: true
       users:
         - curator
-    sg_prometheus:
+    prometheus:
       readonly: true
       users:
         - prometheus
-    sg_spanread:
+    spanread:
       readonly: true
       users:
         - span-read
-    sg_spanwrite:
+    spanwrite:
       readonly: true
       users:
         - span-write
-    sg_all_access:
+    all_access:
       readonly: true
       users:
         - curator
-{{ toYaml .Values.searchguard.admins | indent 8 }}
+{{ toYaml .Values.opendistro_security.admins | indent 8 }}
       backendroles:
         - admin
-    sg_logwrite:
+    logwrite:
       users:
         - logwrite
-    sg_kibana_server:
+    kibana_server:
       readonly: true
       users:
         - kibana
-    sg_kibana_user:
+    kibana_user:
       users:
-{{ toYaml .Values.searchguard.users | indent 8 }}
-    sg_logreader:
+{{ toYaml .Values.opendistro_security.users | indent 8 }}
+    logreader:
       users:
-{{ toYaml .Values.searchguard.users | indent 8 }}
+{{ toYaml .Values.opendistro_security.users | indent 8 }}
       backendroles:
         - kibanauser
-    sg_readall:
+    readall:
       readonly: true
       backendroles:
         - readall
-    sg_manage_snapshots:
+    manage_snapshots:
       readonly: true
       backendroles:
         - snapshotrestore
@@ -436,10 +436,11 @@ data:
       users:
         - elastalert-readonly
     sg_own_index:
+    own_index:
       users:
         - '*'
 
-  sg_internal_users.yml: |-
+  internal_users.yml: |-
     # This is the internal user database
     # The hash value is a bcrypt hash and can be generated with plugin/tools/hash.sh
     {}

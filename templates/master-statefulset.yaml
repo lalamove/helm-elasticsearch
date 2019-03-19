@@ -128,8 +128,8 @@ spec:
           protocol: TCP
         {{- end }}
         readinessProbe:
-          {{- if and .Values.master.enableHTTP (not .Values.searchguard.enable) -}}
-          {{/* We cannot use http readinessProbe for searchguard since it requires client cert auth */}}
+          {{- if and .Values.master.enableHTTP (not .Values.opendistro_security.enable) -}}
+          {{/* We cannot use http readinessProbe for opendistro_security since it requires client cert auth */}}
           httpGet:
             path: /_cluster/health?local=true
             port: http
@@ -173,9 +173,9 @@ spec:
         - mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
           name: config
           subPath: elasticsearch.yml
-        {{- if .Values.searchguard.enable }}
-        - mountPath: /usr/share/elasticsearch/plugins/search-guard-6/sgconfig/
-          name: searchguard-config
+        {{- if .Values.opendistro_security.enable }}
+        - mountPath: /usr/share/elasticsearch/plugins/opendistro_security/securityconfig/
+          name: security-config
         {{- end }}
       volumes:
         {{- if .Values.common.plugins }}
@@ -191,10 +191,10 @@ spec:
         - configMap:
             name: {{ template "fullname" . }}-config
           name: config
-        {{- if .Values.searchguard.enable }}
+        {{- if .Values.opendistro_security.enable }}
         - configMap:
-            name: {{ template "fullname" . }}-searchguard-config
-          name: searchguard-config
+            name: {{ template "fullname" . }}-security-config
+          name: security-config
         {{- end }}
   volumeClaimTemplates:
   - metadata:
