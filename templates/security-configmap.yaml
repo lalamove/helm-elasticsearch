@@ -209,7 +209,7 @@ data:
             - "indices:data/read/field_caps"
             - indices:data/read/xpack/rollup*
             - indices:admin/mappings/get*
-            - indices:admin/get<Paste>
+            - indices:admin/get
 
     # For the kibana server
     kibana_server:
@@ -360,21 +360,32 @@ data:
             - "indices:data/write/index"
             - "indices:admin/create"
 
-    # Support Elastalert
-    sg_elastalert:
-      cluster:
-        - CLUSTER_COMPOSITE_OPS_RO
-        - CLUSTER_MONITOR
-        - "indices:data/write/bulk*"
-        - "indices:data/write/index"
+    # View and acknowledge alerts for Open Distro for Elasticsearch Alerting
+    alerting_acknowledge:
+      readonly： true
       indices:
-        '*':
+        '.opendistro-alerting-alerts':
+          '*':
+            - CRUD
+
+    # Create, update, and delete monitors and destinations for Open Distro for Elasticsearch Alerting
+    alerting_monitors:
+      readonly： true
+      indices:
+        '.opendistro-alerting-config':
+          '*':
+            - CRUD
+
+    # Read only for Open Distro for Elasticsearch Alerting
+    alerting_read_only:
+      readonly： true
+      indices:
+        '.opendistro-alerting-config':
           '*':
             - READ
-            - INDEX
-        'elastalert*':
+        '.opendistro-alerting-alerts':
           '*':
-            - '*'
+            - READ
 
     # Allows each user to access own named index
     own_index:
@@ -419,6 +430,12 @@ data:
     kibana_user:
       users:
 {{ toYaml .Values.opendistro_security.users | indent 8 }}
+    alerting_acknowledge:
+      users:
+{{ toYaml .Values.opendistro_security.users | indent 8 }}
+    alerting_monitors:
+      users:
+{{ toYaml .Values.opendistro_security.users | indent 8 }}
     logreader:
       users:
 {{ toYaml .Values.opendistro_security.users | indent 8 }}
@@ -432,10 +449,7 @@ data:
       readonly: true
       backendroles:
         - snapshotrestore
-    sg_elastalert:
-      users:
-        - elastalert-readonly
-    sg_own_index:
+    own_index:
     own_index:
       users:
         - '*'
