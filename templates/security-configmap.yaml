@@ -362,7 +362,7 @@ data:
 
     # View and acknowledge alerts for Open Distro for Elasticsearch Alerting
     alerting_acknowledge:
-      readonly： true
+      readonly: true
       indices:
         '.opendistro-alerting-alerts':
           '*':
@@ -370,7 +370,7 @@ data:
 
     # Create, update, and delete monitors and destinations for Open Distro for Elasticsearch Alerting
     alerting_monitors:
-      readonly： true
+      readonly: true
       indices:
         '.opendistro-alerting-config':
           '*':
@@ -378,7 +378,7 @@ data:
 
     # Read only for Open Distro for Elasticsearch Alerting
     alerting_read_only:
-      readonly： true
+      readonly: true
       indices:
         '.opendistro-alerting-config':
           '*':
