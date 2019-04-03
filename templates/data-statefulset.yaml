@@ -42,11 +42,11 @@ spec:
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-            - topologyKey: "kubernetes.io/hostname"
-              labelSelector:
-                matchLabels:
-                  component: {{ template "fullname" . }}
-                  role: data
+          - topologyKey: "kubernetes.io/hostname"
+            labelSelector:
+              matchLabels:
+                component: {{ template "fullname" . }}
+                role: data
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 1
             podAffinityTerm:
