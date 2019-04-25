@@ -50,7 +50,7 @@ spec:
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 1
             podAffinityTerm:
-            - topologyKey: "failure-domain.beta.kubernetes.io/zone"
+              topologyKey: "failure-domain.beta.kubernetes.io/zone"
               labelSelector:
                 matchLabels:
                   component: {{ template "fullname" . }}
