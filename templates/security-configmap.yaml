@@ -189,7 +189,7 @@ data:
     kibana_user:
       readonly: true
       cluster:
-        - MONITOR
+        - CLUSTER_MONITOR
         - CLUSTER_COMPOSITE_OPS_RO
       indices:
         '?kibana':
@@ -449,7 +449,6 @@ data:
       readonly: true
       backendroles:
         - snapshotrestore
-    own_index:
     own_index:
       users:
         - '*'

@@ -10,6 +10,12 @@ metadata:
 data:
   jvm.options: |-
     ## GC configuration
+    -XX:G1ConcRefinementThreads=8
+    -XX:GCDrainStackTargetSize=64
+    -XX:+SegmentedCodeCache
+    -XX:+UseCompressedClassPointers
+    -XX:+UseCompressedOops
+    -XX:+UseG1GC
     -XX:+AlwaysPreTouch
     -server
     -Xss1m
