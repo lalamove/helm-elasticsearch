@@ -1,0 +1,29 @@
+{{- if .Values.client.expose }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "fullname" . }}-expose
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    component: {{ template "fullname" . }}-client
+    role: client
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
+spec:
+  type: LoadBalancer
+  selector:
+    component: {{ template "fullname" . }}-client
+    role: client
+  ports:
+  - name: http
+    port: {{ .Values.service.httpPort }}
+    targetPort: 9200
+    protocol: TCP
+  - name: transport
+    port: {{ .Values.service.transportPort }}
+    targetPort: 9300
+    protocol: TCP
+{{- end -}}

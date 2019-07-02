@@ -83,7 +83,7 @@ data:
       {{- if .Values.opendistro_security.enable }}
       advanced_modules_enabled: {{ .Values.opendistro_security.advanced_modules_enabled }}
       restapi:
-        roles_enabled: ["all_access"]
+        roles_enabled: ["all_access", "security_rest_api_access"]
       nodes_dn:
         - "CN=*.{{ template "fullname" . }}.{{ .Release.Namespace }}.svc.{{ .Values.tls.clusterDomain }}"
       authcz:
