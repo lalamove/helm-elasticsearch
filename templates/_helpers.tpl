@@ -74,6 +74,7 @@ init container template
   - "-cert-dir=/tls/"
   - "-pkcs8"
   - "-labels=component={{ template "fullname" . }}"
+  - "-additional-dnsnames={{ .Values.client.dnsname }}"
   volumeMounts:
     - name: tls
       mountPath: /tls
@@ -91,6 +92,24 @@ init container template
   volumeMounts:
     - name: tls
       mountPath: /tls
+{{- if .Values.client.expose }}
+- name: chain-ca
+  image: busybox
+  imagePullPolicy: IfNotPresent
+  command: ["sh", "-c", "cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt /var/mount/prodsa.crt > /tls/ca.crt"]
+  resources:
+      limits:
+        cpu: "500m"
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+  volumeMounts:
+    - name: prodsaca
+      mountPath: /var/mount
+    - name: tls
+      mountPath: /tls
+{{- end }}
 {{- end }}
 {{- if .Values.common.plugins }}
 - name: es-plugin-install

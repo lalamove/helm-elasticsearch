@@ -173,6 +173,11 @@ spec:
           name: security-config
         {{- end }}
       volumes:
+        {{- if .Values.client.expose }}
+        - name: prodsaca
+          secret:
+            secretName: prod-sa-ca
+        {{- end }}
         {{- if .Values.common.plugins }}
         - name: configdir
           emptyDir: {}
