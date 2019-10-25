@@ -29,14 +29,10 @@ data:
           disable_action: False
         filters:
         - filtertype: age
-          source: name
+          source: creation_date
           direction: older
-          timestring: '{{ .Values.curator.age.timestring }}'
           unit: {{ .Values.curator.age.unit }}
           unit_count: {{ .Values.curator.age.unit_count }}
-          field:
-          stats_result:
-          epoch:
           exclude: False
   config.yml: |-
     ---
