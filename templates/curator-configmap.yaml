@@ -1,3 +1,46 @@
+{{- define "acton_file_template" }}
+    # Remember, leave a key empty if there is no value.  None will be a string,
+    # not a Python "NoneType"
+    #
+    # Also remember that all examples have 'disable_action' set to True.  If you
+    # want to use this action as a template, be sure to set this to False after
+    # copying it.
+    actions:
+    {{- range $index, $action := .Values.curator.actions }}
+      {{ add $index 1 }}:
+        action: {{ $action.action}}
+        description: {{ $action.description }}
+        options:
+          ignore_empty_list: True
+          timeout_override:
+          continue_if_exception: False
+          disable_action: False
+        {{- if hasKey $action "filters" }}
+        filters:
+        {{- range .filters }}
+        {{- if eq ( .type | toString ) "age" }}
+        - filtertype: {{ .type }}
+          source: {{ .source }}
+          direction: {{ .direction }}
+          timestring: {{ .timestring | toString | quote }}
+          unit: {{ .unit }}
+          unit_count: {{ .unit_count }}
+          field:
+          stats_result:
+          epoch:
+          exclude: {{ .exclude }}
+        {{- end }}
+        
+        {{- /* end Filters iteration */ -}}
+        {{- end }}
+        
+        {{- /* end Filters test */ -}}
+        {{- end }}
+        
+        {{- /* end Actions iteration */ -}}
+        {{- end }}
+{{end}}
+
 {{- if .Values.curator.enable }}
 apiVersion: v1
 kind: ConfigMap
@@ -12,28 +55,8 @@ metadata:
 data:
   action_file.yml: |-
     ---
-    # Remember, leave a key empty if there is no value.  None will be a string,
-    # not a Python "NoneType"
-    #
-    # Also remember that all examples have 'disable_action' set to True.  If you
-    # want to use this action as a template, be sure to set this to False after
-    # copying it.
-    actions:
-      1:
-        action: delete_indices
-        description: "Clean up ES by deleting old indices"
-        options:
-          ignore_empty_list: True
-          timeout_override:
-          continue_if_exception: False
-          disable_action: False
-        filters:
-        - filtertype: age
-          source: creation_date
-          direction: older
-          unit: {{ .Values.curator.age.unit }}
-          unit_count: {{ .Values.curator.age.unit_count }}
-          exclude: False
+    {{- template "acton_file_template" . }}
+  
   config.yml: |-
     ---
     # Remember, leave a key empty if there is no value.  None will be a string,
